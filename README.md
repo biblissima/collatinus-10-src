@@ -14,4 +14,4 @@ Page de présentation et téléchargement sur le site Biblissima : [http://outil
 
 ## Licence
 
-Ce programme est mis à disposition par Yves Ouvrard et Philippe Verkerk sous licence [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/) (CC BY-NC).
+Ce programme est mis à disposition par Yves Ouvrard et Philippe Verkerk sous licence [GNU GPL v3](http://www.gnu.org/licenses/gpl.html).

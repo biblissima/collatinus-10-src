@@ -1,0 +1,31 @@
+# the following are icon comming with this project are part of the tango
+# desktop project http://tango.freedesktop.org/ or derivate from it, and are
+# release to the public domain.
+
+document-new.svg
+document-open.svg
+document-save-as.svg
+document-save.svg
+edit-clear.svg
+edit-delete.svg
+edit-find-replace.svg
+edit-find.svg
+folder-open.svg
+folder-saved-search.svg
+help-browser.svg
+system-search.svg
+
+# those are derivate work
+Format-text-size-decrease.svg
+Format-text-size-incease.svg
+
+# this icon is derivative from the Noun Project
+# (http://www.thenounproject.com/)
+# and is in public domain
+noun_project_94-power.svg
+
+# those last 3 have been created for the project
+# (put license here)
+edit-alpha.svg
+gear.svg
+syntaxe.svg

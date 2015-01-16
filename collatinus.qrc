@@ -1,0 +1,35 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="alpha.svg">images/svg/edit-alpha.svg</file>
+        <file alias="clear.svg">images/svg/edit-clear.svg</file>
+        <file alias="exit.svg">images/svg/noun_project_94-power.svg</file>
+        <file alias="find.svg">images/svg/edit-find.svg</file>
+        <file alias="font-size-up.svg">images/svg/Format-text-size-increase.svg</file>
+        <file alias="font-size-down.svg">images/svg/Format-text-size-decrease.svg</file>
+        <file alias="help.svg">images/svg/help-browser.svg</file>
+        <file alias="lemmatiser.svg">images/svg/gear.svg</file>
+        <file alias="new.svg">images/svg/document-new.svg</file>
+        <file alias="open.svg">images/svg/document-open.svg</file>
+        <file alias="save.svg">images/svg/document-save-as.svg</file>
+        <file alias="syntaxe.svg">images/svg/syntaxe.svg</file>
+        <file alias="lemmata_radere">images/svg/edit-clear.svg</file>
+        <file>images/svg/document-new.svg</file>
+        <file>images/svg/document-save.svg</file>
+        <file>images/svg/edit-alpha.svg</file>
+        <file>images/svg/edit-clear.svg</file>
+        <file>images/svg/edit-delete.svg</file>
+        <file>images/svg/edit-find-replace.svg</file>
+        <file>images/svg/folder-open.svg</file>
+        <file>images/svg/folder-saved-search.svg</file>
+        <file>images/svg/system-search.svg</file>
+        <file>images/svg/syntaxe.svg</file>
+        <file>images/svg/gear.svg</file>
+        <file>images/svg/Format-text-size-increase.svg</file>
+        <file>images/svg/Format-text-size-decrease.svg</file>
+        <file>images/svg/help-browser.svg</file>
+        <file>images/svg/noun_project_94-power.svg</file>
+        <file>images/svg/abacus.svg</file>
+        <file>images/svg/dicolem.svg</file>
+        <file>images/svg/dicolitt.svg</file>
+    </qresource>
+</RCC>

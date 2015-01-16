@@ -1,0 +1,993 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>950</width>
+    <height>658</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Collatinus</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../ressources/collatinus.png</normaloff>../ressources/collatinus.png</iconset>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowNestedDocks|QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
+   </property>
+   <layout class="QVBoxLayout">
+    <item>
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <widget class="QSplitter" name="splitter">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>false</italic>
+           <bold>false</bold>
+           <strikeout>false</strikeout>
+           <kerning>true</kerning>
+          </font>
+         </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::North</enum>
+         </property>
+         <property name="tabShape">
+          <enum>QTabWidget::Rounded</enum>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <property name="documentMode">
+          <bool>false</bool>
+         </property>
+         <widget class="QWidget" name="tab">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <attribute name="title">
+           <string>&amp;Lemmata</string>
+          </attribute>
+          <layout class="QVBoxLayout">
+           <item>
+            <widget class="QTextEdit" name="EditTextus">
+             <property name="font">
+              <font>
+               <pointsize>9</pointsize>
+               <weight>50</weight>
+               <italic>false</italic>
+               <bold>false</bold>
+               <kerning>true</kerning>
+              </font>
+             </property>
+             <property name="cursor" stdset="0">
+              <cursorShape>IBeamCursor</cursorShape>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <attribute name="title">
+           <string>&amp;Glossaria</string>
+          </attribute>
+          <layout class="QVBoxLayout">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QLabel" name="entree_felix">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string> Ve&amp;rbum </string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::AutoText</enum>
+               </property>
+               <property name="buddy">
+                <cstring>saisie_felix</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="saisie_felix">
+               <property name="maximumSize">
+                <size>
+                 <width>859</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="felixButton">
+               <property name="toolTip">
+                <string>Lemmatisation et recherche</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../collatinus.qrc">
+                 <normaloff>:/images/svg/dicolem.svg</normaloff>:/images/svg/dicolem.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="bDicoLitt">
+               <property name="toolTip">
+                <string>Recherche sans lemmatisation</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../collatinus.qrc">
+                 <normaloff>:/images/svg/dicolitt.svg</normaloff>:/images/svg/dicolitt.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboGlossaria">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="AnteButton">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>Ante</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelLewis">
+               <property name="font">
+                <font>
+                 <pointsize>14</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>&lt; &gt;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="PostButton">
+               <property name="text">
+                <string>Post</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>36</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTextBrowser" name="EditFelix">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+             <property name="openExternalLinks">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_5">
+          <attribute name="title">
+           <string>&amp;Numeri</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTextEdit" name="EditQuantites">
+             <property name="font">
+              <font>
+               <weight>50</weight>
+               <bold>false</bold>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string>&amp;Flexio</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="labelFlexion">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="text">
+                <string>&amp;Flectere</string>
+               </property>
+               <property name="buddy">
+                <cstring>SaisieFlexion</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="SaisieFlexion"/>
+             </item>
+             <item>
+              <widget class="QPushButton" name="BFlexion">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../collatinus.qrc">
+                 <normaloff>:/images/svg/system-search.svg</normaloff>:/images/svg/system-search.svg</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTextBrowser" name="EditFlexio"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>950</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Auxilium">
+    <property name="title">
+     <string>&amp;Auxilium</string>
+    </property>
+    <addaction name="actionAuxilium"/>
+    <addaction name="separator"/>
+    <addaction name="actionDe_Collatino"/>
+   </widget>
+   <widget class="QMenu" name="menuCapsa">
+    <property name="title">
+     <string>&amp;Capsa</string>
+    </property>
+    <addaction name="action_Noua"/>
+    <addaction name="action_Onerare"/>
+    <addaction name="action_Scribere"/>
+    <addaction name="actionScribere_s_ub"/>
+    <addaction name="separator"/>
+    <addaction name="action_Exire"/>
+   </widget>
+   <widget class="QMenu" name="menu_Editio">
+    <property name="title">
+     <string>&amp;Editio</string>
+    </property>
+    <widget class="QMenu" name="menu_Lingua">
+     <property name="title">
+      <string>&amp;Lingua</string>
+     </property>
+     <addaction name="actionLCatalan"/>
+     <addaction name="actionLDeutsch"/>
+     <addaction name="actionLEnglish"/>
+     <addaction name="actionLEspanol"/>
+     <addaction name="actionLFrancais"/>
+     <addaction name="actionLGallego"/>
+     <addaction name="actionLLatina"/>
+    </widget>
+    <addaction name="actionInuenire"/>
+    <addaction name="actionInuenire_etiam"/>
+    <addaction name="separator"/>
+    <addaction name="actionL_emmata_radere"/>
+    <addaction name="separator"/>
+    <addaction name="menu_Lingua"/>
+   </widget>
+   <widget class="QMenu" name="menu_Visio">
+    <property name="title">
+     <string>&amp;Visio</string>
+    </property>
+    <addaction name="actionMaiores_litteras"/>
+    <addaction name="actionMinores_litteras"/>
+   </widget>
+   <widget class="QMenu" name="menu_Lemmata">
+    <property name="title">
+     <string>&amp;Lemmata</string>
+    </property>
+    <addaction name="actionOmnia_lemmatizare"/>
+    <addaction name="actionAlphabetice"/>
+    <addaction name="action_Frequentiae"/>
+    <addaction name="separator"/>
+    <addaction name="actionSyntaxis"/>
+    <addaction name="actionCum_textus_uocibus"/>
+    <addaction name="actionMaj"/>
+    <addaction name="actionMorphologia_in_bullis"/>
+    <addaction name="separator"/>
+    <addaction name="actionLexicaAddereCorrigere"/>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuCapsa"/>
+   <addaction name="menu_Editio"/>
+   <addaction name="menu_Visio"/>
+   <addaction name="menu_Lemmata"/>
+   <addaction name="menu_Auxilium"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="contextMenuPolicy">
+    <enum>Qt::PreventContextMenu</enum>
+   </property>
+   <property name="movable">
+    <bool>true</bool>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <property name="floatable">
+    <bool>true</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Noua"/>
+   <addaction name="action_Onerare"/>
+   <addaction name="action_Scribere"/>
+   <addaction name="actionInuenire"/>
+   <addaction name="separator"/>
+   <addaction name="actionSyntaxis"/>
+   <addaction name="actionOmnia_lemmatizare"/>
+   <addaction name="actionAlphabetice"/>
+   <addaction name="action_Frequentiae"/>
+   <addaction name="actionL_emmata_radere"/>
+   <addaction name="separator"/>
+   <addaction name="actionMaiores_litteras"/>
+   <addaction name="actionMinores_litteras"/>
+   <addaction name="actionAuxilium"/>
+   <addaction name="action_Exire"/>
+  </widget>
+  <action name="action_Exire">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/noun_project_94-power.svg</normaloff>:/images/svg/noun_project_94-power.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Exire</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WindowShortcut</enum>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_Noua">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/new.svg</normaloff>:/new.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Noua</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_Onerare">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/folder-open.svg</normaloff>:/images/svg/folder-open.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Onerare</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Scribere">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/document-save.svg</normaloff>:/images/svg/document-save.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Scribere</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionScribere_s_ub">
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/save-as.png</normaloff>:/images/save-as.png</iconset>
+   </property>
+   <property name="text">
+    <string>Scribere &amp;ut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionL_emmata_radere">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/edit-clear.svg</normaloff>:/images/svg/edit-clear.svg</iconset>
+   </property>
+   <property name="text">
+    <string>L&amp;emmata radere</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionMaiores_litteras">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/Format-text-size-increase.svg</normaloff>:/images/svg/Format-text-size-increase.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Maiores litteras</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionMinores_litteras">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/Format-text-size-decrease.svg</normaloff>:/images/svg/Format-text-size-decrease.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Minores litteras</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionOmnia_lemmatizare">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/gear.svg</normaloff>:/images/svg/gear.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Omnia lemmatizare aut metiri</string>
+   </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
+  </action>
+  <action name="actionDe_Collatino">
+   <property name="text">
+    <string>de Collatino</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+  </action>
+  <action name="actionAlphabetice">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/edit-alpha.svg</normaloff>:/images/svg/edit-alpha.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Alphabetice</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionAuxilium">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/help-browser.svg</normaloff>:/images/svg/help-browser.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Auxilium</string>
+   </property>
+   <property name="shortcut">
+    <string>F1</string>
+   </property>
+  </action>
+  <action name="actionLemmatiseMot">
+   <property name="text">
+    <string>LemmatiseMot</string>
+   </property>
+  </action>
+  <action name="actionGermanice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Deutsch</string>
+   </property>
+  </action>
+  <action name="actionAnglice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionGallice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Français</string>
+   </property>
+  </action>
+  <action name="actionCum_textus_uocibus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>cum textus uocibus</string>
+   </property>
+  </action>
+  <action name="actionInuenire">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/system-search.svg</normaloff>:/images/svg/system-search.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Inuenire</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionInuenire_etiam">
+   <property name="text">
+    <string>Inuenire &amp;denuo</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
+   </property>
+  </action>
+  <action name="actionSyntaxis">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/syntaxe.svg</normaloff>:/images/svg/syntaxe.svg</iconset>
+   </property>
+   <property name="text">
+    <string>syntaxis</string>
+   </property>
+  </action>
+  <action name="actionHispanice">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Español</string>
+   </property>
+  </action>
+  <action name="actionCatal_n">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Catalán</string>
+   </property>
+  </action>
+  <action name="actionGallego">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Gallego</string>
+   </property>
+  </action>
+  <action name="actionMorphologia_in_bullis">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>morphologia in bullis</string>
+   </property>
+  </action>
+  <action name="actionCalepino">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Calepino</string>
+   </property>
+  </action>
+  <action name="actionLexicaAddereCorrigere">
+   <property name="text">
+    <string>Lexica addere et corrigere</string>
+   </property>
+  </action>
+  <action name="actionLCatalan">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Catalan</string>
+   </property>
+  </action>
+  <action name="actionLDeutsch">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Deutsch</string>
+   </property>
+  </action>
+  <action name="actionLEnglish">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>English</string>
+   </property>
+  </action>
+  <action name="actionLEspanol">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Espanol</string>
+   </property>
+  </action>
+  <action name="actionLFrancais">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Français</string>
+   </property>
+  </action>
+  <action name="actionLGallego">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Gallego</string>
+   </property>
+  </action>
+  <action name="actionLLatina">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Latina</string>
+   </property>
+  </action>
+  <action name="actionMaj">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Maiusculae pertinentes</string>
+   </property>
+  </action>
+  <action name="action_Frequentiae">
+   <property name="icon">
+    <iconset resource="../collatinus.qrc">
+     <normaloff>:/images/svg/abacus.svg</normaloff>:/images/svg/abacus.svg</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Frequentiae</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../collatinus.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>action_Exire</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>214</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMaiores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditTextus</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMinores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditTextus</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>369</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMaiores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditFelix</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMinores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditFelix</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>379</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMaiores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditQuantites</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMinores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditQuantites</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>420</x>
+     <y>358</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMaiores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditFlexio</receiver>
+   <slot>zoomIn()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>474</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionMinores_litteras</sender>
+   <signal>triggered()</signal>
+   <receiver>EditFlexio</receiver>
+   <slot>zoomOut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>474</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

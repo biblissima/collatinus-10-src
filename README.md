@@ -16,6 +16,16 @@ Collatinus existe aussi en version web :
 - traduction des lemmes grâce aux dictionnaires de latin incorporés dans l'application,
 - affichage des quantités (durée longue ou brève des syllabes) et des flexions (déclinaison ou conjugaison).
 
+## Installation
+
+Collatinus a été écrit avec Qt. Le fichier du projet Qt, Collatinus.pro, devra probablement être adapté à la structure de l'ordinateur d'accueil. Nous le donnons ici à titre d'exemple (peut-être même qu'il fonctionnera).
+
+### Ajout des données
+
+Pour que le programme Collatinus fonctionne, il faut lui fournir des fichiers de données. Ces fichiers sont rangés dans un répertoire "ressources" que l'on trouvera dans le dépôt https://github.com/biblissima/collatinus-data. Les fichiers volumineux des dictionnaires (*.xml ou *.djvu) n'ont pas été mis dans le dépôt : ils doivent être téléchargés directement depuis la page Collatinus du site Biblissima (section Téléchargements) : http://outils.biblissima.fr/collatinus/#telechargements
+
+Selon le système d'exploitation utilisé, le dossier ressources devra être rangé à un endroit précis. Pour Windows et Linux, il doit se trouver au même niveau que l'exécutable. Pour Mac OSX, tout se passe dans le paquet Collatinus.app (ou tout autre nom que l'on souhaite lui donner) et le dossier ressources doit être placé dans le répertoire Contents/MacOS (à côté de l'exécutable ; cet emplacement n'est probablement pas conforme aux directives d'Apple, et pourrait être modifié dans une version ultérieure). Pour que ces données soient adaptées à la version bureau de Collatinus, il convient de créer, dans ce répertoire ressources, un sous-répertoire dicos dans lequel seront rangés les fichiers relatifs aux dictionnaires (*.cfg, *.idx, *.css et *.xsl) ainsi que les dictionnaires eux-mêmes.
+
 ## Licence
 
 Ce programme est mis à disposition par Yves Ouvrard et Philippe Verkerk sous licence [GNU GPL v3](http://www.gnu.org/licenses/gpl.html).

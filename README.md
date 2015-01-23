@@ -1,12 +1,12 @@
 # Collatinus
 
-Ce dépôt contient les sources de [Collatinus](http://outils.biblissima.fr/collatinus/), un logiciel libre et gratuit pour la lemmatisation et l'analyse morphologique de textes latins.
+Ce dépôt contient les sources de [Collatinus](http://outils.biblissima.fr/collatinus/), un logiciel libre et gratuit pour la **lemmatisation et l'analyse morphologique de textes latins**.
 
 Collatinus est développé par Yves Ouvrard et Philippe Verkerk.
 
-Page de présentation et téléchargement sur le site Biblissima : [http://outils.biblissima.fr/collatinus/](http://outils.biblissima.fr/collatinus/) (exécutables disponibles pour Mac OS, GNU/Linux et Windows).
+**Page de présentation et téléchargement sur le site Biblissima** : [http://outils.biblissima.fr/collatinus/](http://outils.biblissima.fr/collatinus/) (exécutables disponibles pour Mac OS, GNU/Linux et Windows).
 
-Collatinus existe aussi en version web :
+Collatinus existe aussi en **version web** :
 - Démo sur le site Biblissima : [http://outils.biblissima.fr/collatinus-web/](http://outils.biblissima.fr/collatinus-web)
 - Collatinus-web sur Github : [collatinus-web-daemon](https://github.com/biblissima/collatinus-web-daemon) et [collatinus-web-ui](https://github.com/biblissima/collatinus-web-ui)
 
@@ -18,13 +18,17 @@ Collatinus existe aussi en version web :
 
 ## Installation
 
-Collatinus a été écrit avec Qt. Le fichier du projet Qt, Collatinus.pro, devra probablement être adapté à la structure de l'ordinateur d'accueil. Nous le donnons ici à titre d'exemple (peut-être même qu'il fonctionnera).
+Collatinus a été écrit avec **Qt**. Le fichier du projet Qt, `collatinus.pro`, devra probablement être adapté à l'environnement local. Nous le donnons ici à titre d'exemple (peut-être même qu'il fonctionnera).
 
 ### Ajout des données
 
-Pour que le programme Collatinus fonctionne, il faut lui fournir des fichiers de données. Ces fichiers sont rangés dans un répertoire "ressources" que l'on trouvera dans le dépôt https://github.com/biblissima/collatinus-data. Les fichiers volumineux des dictionnaires (*.xml ou *.djvu) n'ont pas été mis dans le dépôt : ils doivent être téléchargés directement depuis la page Collatinus du site Biblissima (section Téléchargements) : http://outils.biblissima.fr/collatinus/#telechargements
+Pour que le programme Collatinus fonctionne, il faut lui fournir des **fichiers de données**. Ces fichiers sont rangés dans un répertoire `ressources/` que l'on trouvera dans le dépôt Github [collatinus-data](https://github.com/biblissima/collatinus-data). Les fichiers volumineux des dictionnaires (*.xml ou *.djvu) ne sont pas inclus dans le dépôt : ils doivent être téléchargés directement depuis la page Collatinus du site Biblissima (section Téléchargements : http://outils.biblissima.fr/collatinus/#telechargements)
 
-Selon le système d'exploitation utilisé, le dossier ressources devra être rangé à un endroit précis. Pour Windows et Linux, il doit se trouver au même niveau que l'exécutable. Pour Mac OSX, tout se passe dans le paquet Collatinus.app (ou tout autre nom que l'on souhaite lui donner) et le dossier ressources doit être placé dans le répertoire Contents/MacOS (à côté de l'exécutable ; cet emplacement n'est probablement pas conforme aux directives d'Apple, et pourrait être modifié dans une version ultérieure). Pour que ces données soient adaptées à la version bureau de Collatinus, il convient de créer, dans ce répertoire ressources, un sous-répertoire dicos dans lequel seront rangés les fichiers relatifs aux dictionnaires (*.cfg, *.idx, *.css et *.xsl) ainsi que les dictionnaires eux-mêmes.
+Selon le système d'exploitation utilisé, le dossier `ressources/` devra être rangé à un endroit précis. Pour Windows et Linux, il doit se trouver au même niveau que l'exécutable. Pour Mac OSX, tout se passe dans le paquet `Collatinus.app` (ou tout autre nom que l'on souhaite lui donner) et le dossier `ressources/` doit être placé dans le répertoire `Contents/MacOS/` (à côté de l'exécutable ; cet emplacement n'est probablement pas conforme aux directives d'Apple, et pourrait être modifié dans une version ultérieure). 
+Pour que ces données soient adaptées à la version bureau de Collatinus, il convient de créer, dans ce répertoire `ressources/`, un sous-répertoire `dicos/` dans lequel seront rangés les fichiers relatifs aux dictionnaires (*.cfg, *.idx, *.css et *.xsl) ainsi que les dictionnaires eux-mêmes.
+
+Le **manuel d'aide** de Collatinus est disponible dans le dépôt [collatinus-data](https://github.com/biblissima/collatinus-data) (voir le dossier `doc/`; celui-ci devra être laissé à sa place à côté du dossier `ressources/` pour être inclu dans le programme).
+
 
 ## Licence
 

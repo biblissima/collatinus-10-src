@@ -408,7 +408,7 @@ void fenestra::decollatino ()
          tr("De Collatino"), trUtf8 (
          "COLLATINVS\nLinguae latinae lemmatizatio \n"
          "Licentia GPL, \u00a9 Yves Ouvrard, annis 2009 - 2014 \n" 
-         "Versio "VERSION"\n" 
+         "Versio " VERSION "\n" 
          "Nonnullas partes operis scripsit Philippe Verkerk\n"
          "Gratias illis habeo :\n" 
          "William Whitaker \u2020\n" 

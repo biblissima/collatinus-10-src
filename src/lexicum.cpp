@@ -282,7 +282,7 @@ namespace Ch
      * @param lb : deuxième liste de chaines
      * @return true, si au moins un mot est commun. false si les listes sont disjointes
      */
-    bool Ch::commun (QStringList la, QStringList lb)
+    bool commun (QStringList la, QStringList lb)
     {
         foreach (QString a, la)
             if (lb.contains (a))

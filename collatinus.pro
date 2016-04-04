@@ -5,7 +5,7 @@
 
 TEMPLATE = app
 TARGET = collatinus
-VERSION = "10.2"
+VERSION = "10.3"
 DEFINES += VERSION=\\\"$$VERSION\\\"
 DEPENDPATH += .
 INCLUDEPATH += .
@@ -15,7 +15,13 @@ OBJECTS_DIR= obj/
 MOC_DIR = moc/
 
 # Input
-HEADERS     += src/*.h 
+HEADERS     += src/*.h  #\
+#    src/desinence.h \
+#    src/analysemorpho.h \
+#    src/entree.h \
+#    src/radix.h \
+#    src/irregs.h
+#    src/traits.h
 FORMS       += src/*.ui
 SOURCES     += src/*.cpp #src/*.cc
 RESOURCES   += collatinus.qrc

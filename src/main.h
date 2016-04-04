@@ -116,7 +116,12 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         void flechis (Entree * e);
         int editeurCourant ();
         QTextEdit * editeurRes ();
+        QString startServer ();
+        QString stopServer ();
+
     private:
+        QTcpServer * serveur;
+        QTcpSocket * soquette;
         void majDic ();
         Editeur * EditLatin;
         void createActions();
@@ -164,7 +169,12 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         QComboBox * comboGlossaria2;
         QStringList ldic;
 
+    signals:
+        void donneesRecues (QString texte);
+
     private slots:
+        void connexion ();
+        void exec ();
         void oteDiac ();
         void ampliatioGlossarii ();
         void verbaCognita(bool vb=false);

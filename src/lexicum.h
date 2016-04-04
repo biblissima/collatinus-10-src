@@ -141,16 +141,8 @@ typedef QMultiMap<QString, Desinence*> c2d;
 class Lexicum: public QObject
 {
     Q_OBJECT
-private slots:
-    void connexion ();
-    void exec ();
-
-signals:
-    void donneesRecues (QString texte);
 
 private:
-    QTcpServer * serveur;
-    QTcpSocket * soquette;
     QHash<QString,int> hLem;
     QStringList couleurs;
         QMap <QString, QString> metae;
@@ -190,8 +182,6 @@ private:
 
     public:
         Lexicum (QString qsuia, QObject *parent = 0);
-        QString startServer ();
-        QString stopServer ();
         void verbaCognita(QString repertoire, bool vb=false);
         void ampliatio ();
         virtual ~Lexicum ();

@@ -408,7 +408,7 @@ void fenestra::decollatino ()
          tr("De Collatino"), trUtf8 (
          "COLLATINVS\nLinguae latinae lemmatizatio \n"
          "Licentia GPL, \u00a9 Yves Ouvrard, annis 2009 - 2014 \n" 
-         "Versio " VERSION "\n" 
+         "Versio " VERSION "\n"
          "Nonnullas partes operis scripsit Philippe Verkerk\n"
          "Gratias illis habeo :\n" 
          "William Whitaker \u2020\n" 
@@ -1305,15 +1305,71 @@ void fenestra::lancerServeur(bool run)
     if (run)
     {
         QMessageBox::about(this,
-             tr("Serveur de Collatinus"), lexicum->startServer());
+             tr("Serveur de Collatinus"), startServer());
 
     }
     else
     {
         QMessageBox::about(this,
-             tr("Serveur de Collatinus"), lexicum->stopServer());
+             tr("Serveur de Collatinus"), stopServer());
 
     }
+}
+
+void fenestra::connexion ()
+{
+    soquette = serveur->nextPendingConnection ();
+    connect (soquette, SIGNAL (readyRead ()), this, SLOT (exec ()));
+}
+
+void fenestra::exec ()
+{
+    QByteArray octets = soquette->readAll ();
+    QString requete = QString (octets);
+    QString rep;
+    if (requete[0] == '-')
+    {
+        char a = requete[1].toLatin1();
+        requete = requete.mid(requete.indexOf(" ")+1);
+        switch (a)
+        {
+        case 's':
+            rep = lexicum->scandeTxt(requete);
+            break;
+        case 'a':
+            rep = lexicum->scandeTxt(requete,true,false);
+            break;
+        case 'l':
+            rep = lexicum->lemmatiseTxt(requete);
+            break;
+        default:
+            break;
+        }
+    }
+    else rep= lexicum->scandeTxt(requete);
+    rep.remove("<br />");
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(rep);
+    QByteArray ba = rep.toUtf8();
+    soquette->write(ba);
+}
+
+QString fenestra::startServer()
+{
+    serveur = new QTcpServer (this);
+    connect (serveur, SIGNAL(newConnection()), this, SLOT (connexion ()));
+    if (!serveur->listen (QHostAddress::LocalHost, 5555))
+    {
+        return "Ne peux écouter.";
+    }
+    return "Le serveur est lancé.";
+}
+
+QString fenestra::stopServer()
+{
+    serveur->close();
+    delete serveur;
+    return "Le serveur est éteint.";
 }
 
 void fenestra::extra_dico(bool visible)

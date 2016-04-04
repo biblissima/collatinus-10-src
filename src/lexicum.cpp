@@ -357,62 +357,6 @@ namespace Ch
 /*******************
 ** classe lexique **
 ********************/
-void Lexicum::connexion ()
-{
-    soquette = serveur->nextPendingConnection ();
-    connect (soquette, SIGNAL (readyRead ()), this, SLOT (exec ()));
-}
-
-void Lexicum::exec ()
-{
-    QByteArray octets = soquette->readAll ();
-    QString requete = QString (octets);
-    QString rep;
-    if (requete[0] == '-')
-    {
-        char a = requete[1].toLatin1();
-        requete = requete.mid(requete.indexOf(" ")+1);
-        switch (a)
-        {
-        case 's':
-            rep = scandeTxt(requete);
-            break;
-        case 'a':
-            rep = scandeTxt(requete,true,false);
-            break;
-        case 'l':
-            rep = lemmatiseTxt(requete);
-            break;
-        default:
-            break;
-        }
-    }
-    else rep= scandeTxt(requete);
-    rep.remove("<br />");
-    QClipboard *clipboard = QApplication::clipboard();
-    clipboard->setText(rep);
-    QByteArray ba = rep.toUtf8();
-    soquette->write(ba);
-}
-
-QString Lexicum::startServer()
-{
-    serveur = new QTcpServer (this);
-    connect (serveur, SIGNAL(newConnection()), this, SLOT (connexion ()));
-    if (!serveur->listen (QHostAddress::LocalHost, 5555))
-    {
-        return "Ne peux écouter.";
-    }
-    return "Le serveur est lancé.";
-}
-
-QString Lexicum::stopServer()
-{
-    serveur->close();
-    delete serveur;
-    return "Le serveur est éteint.";
-}
-
 Lexicum::Lexicum (QString qsuia, QObject *parent) :
     QObject(parent)
 {

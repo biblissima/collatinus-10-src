@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>950</width>
-    <height>658</height>
+    <height>509</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -62,8 +62,14 @@
         <property name="mouseTracking">
          <bool>true</bool>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
         <property name="styleSheet">
          <string notr="true"/>
+        </property>
+        <property name="midLineWidth">
+         <number>7</number>
         </property>
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -95,7 +101,7 @@
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <property name="documentMode">
           <bool>false</bool>
@@ -280,7 +286,7 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout">
            <item>
-            <widget class="QTextEdit" name="EditQuantites">
+            <widget class="QTextBrowser" name="EditQuantites">
              <property name="font">
               <font>
                <weight>50</weight>
@@ -372,6 +378,9 @@
     <addaction name="actionAuxilium"/>
     <addaction name="separator"/>
     <addaction name="actionDe_Collatino"/>
+    <addaction name="separator"/>
+    <addaction name="actionLexicaAddereCorrigere"/>
+    <addaction name="actionLancer_le_serveur"/>
    </widget>
    <widget class="QMenu" name="menuCapsa">
     <property name="title">
@@ -381,6 +390,9 @@
     <addaction name="action_Onerare"/>
     <addaction name="action_Scribere"/>
     <addaction name="actionScribere_s_ub"/>
+    <addaction name="separator"/>
+    <addaction name="actionTabula_Formae"/>
+    <addaction name="actionVerba_cognita"/>
     <addaction name="separator"/>
     <addaction name="action_Exire"/>
    </widget>
@@ -403,6 +415,7 @@
     <addaction name="actionInuenire"/>
     <addaction name="actionInuenire_etiam"/>
     <addaction name="separator"/>
+    <addaction name="actionOter_les_accents"/>
     <addaction name="actionL_emmata_radere"/>
     <addaction name="separator"/>
     <addaction name="menu_Lingua"/>
@@ -413,6 +426,8 @@
     </property>
     <addaction name="actionMaiores_litteras"/>
     <addaction name="actionMinores_litteras"/>
+    <addaction name="separator"/>
+    <addaction name="actionExtra_dico"/>
    </widget>
    <widget class="QMenu" name="menu_Lemmata">
     <property name="title">
@@ -426,8 +441,9 @@
     <addaction name="actionCum_textus_uocibus"/>
     <addaction name="actionMaj"/>
     <addaction name="actionMorphologia_in_bullis"/>
+    <addaction name="actionMorphologia_in_lemmatibus"/>
     <addaction name="separator"/>
-    <addaction name="actionLexicaAddereCorrigere"/>
+    <addaction name="action_ampliatio_glossarii"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuCapsa"/>
@@ -840,6 +856,56 @@
     <string>&amp;Frequentiae</string>
    </property>
   </action>
+  <action name="actionMorphologia_in_lemmatibus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Morphologia in lemmatibus</string>
+   </property>
+  </action>
+  <action name="actionExtra_dico">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Extra_dico</string>
+   </property>
+  </action>
+  <action name="action_ampliatio_glossarii">
+   <property name="text">
+    <string>    ampliatio glossarii</string>
+   </property>
+  </action>
+  <action name="actionTabula_Formae">
+   <property name="text">
+    <string>Tabula Formae</string>
+   </property>
+  </action>
+  <action name="actionLancer_le_serveur">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Lancer le serveur</string>
+   </property>
+  </action>
+  <action name="actionVerba_cognita">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Verba cognita</string>
+   </property>
+  </action>
+  <action name="actionOter_les_accents">
+   <property name="text">
+    <string>Oter les accents</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../collatinus.qrc"/>
@@ -922,38 +988,6 @@
     <hint type="destinationlabel">
      <x>420</x>
      <y>379</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionMaiores_litteras</sender>
-   <signal>triggered()</signal>
-   <receiver>EditQuantites</receiver>
-   <slot>zoomIn()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>358</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionMinores_litteras</sender>
-   <signal>triggered()</signal>
-   <receiver>EditQuantites</receiver>
-   <slot>zoomOut()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>420</x>
-     <y>358</y>
     </hint>
    </hints>
   </connection>

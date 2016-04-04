@@ -18,199 +18,103 @@
  *
  */
 
-/**
- TODO: transformer la recherche d'un canon ds la phrase :
-       QSet Phrases::canons, alimentÃ© par la liste morphos.
- TODO: ajouter la possibilité de plusieurs lemmes pour une position 
-       de l'expression, avec la même morpho
-       ou même plusieurs lemmes pour la même position, avec des morphos
-       différentes
- TODO:
-     - le mot noyau est répété : alius... alius ;
-     - la même expression est répétée dans la phrase.
-*/
-
 #ifndef SYNTAXE_H
 #define SYNTAXE_H
-#include "libcollatinus.h"
+#include "lexicum.h"
 #include <QObject>
 #include <QString>
 #include <QList>
 #include <QStringList>
-#include <QMultiMap>
 
-/*************************************************/
-// classes côté texte
-/*************************************************/
-
-class Morphos: public QObject
-{
-    Q_OBJECT
-    private:
-    QString canon;
-    QString graphie;
-    QStringList elements;
-    int item;
-    public:
-    Morphos (QString mo);
-    virtual ~Morphos ();
-    void setCanon (QString c);
-    QString getCanon ();
-    QString getGraphie ();
-    QString humain ();
-    QString cas ();
-    QString genre ();
-    QString nombre ();
-    void setItem (int i);
-    int getItem ();
-    bool accepte (Morphos * mb);
-};
-
-typedef QList<Morphos *> ListeM;
 class Mot: public QObject
 {
     Q_OBJECT
     private:
-        TLexicum * lexicum;
-    QString graphie;
-	QString lemme;
-    ListeM morphos;
-    void lemmatise ();
-    bool adopte;
+        QString gr;
+        QStringList canons;
+        QStringList entrees;
+        QStringList morpho;
+        QList<AnalyseMorpho*> analyses; 
+        QString ponctD; // ponctuation avant
+        QString ponctF; // ponctuation après
+        int pos;        // position dans la phrase
+        int posExpr;    // position dans l'expression
+        bool motExpr;
+        QString expr;
+        bool noyau;
+        QString accordEn; // accord en (cas, genre, nombre).
+        int nAccordAvec; // numéro du mot avec lequel doit s'accorder le mot.
     public:
-    Mot (QString g, TLexicum * lx, bool debut = false);
-    virtual ~Mot ();
-    int no; // ordre du mot dans la phrase
-    int count_morphos ();
-    QString getGraphie ();
-    QString getCanon (int i);
-	QString get_lemme ();
-    Morphos * getMorpho (int i);
-    QString humain (int i);
-    QString humain ();
-	QString lemmatisation ();
-    void setAdopte (bool a);
-    bool estAdopte ();
-    bool casCommun (Mot * m);
-    bool nombreCommun (Mot * m);
-    bool deb_phr;
-};
-
-/*************************************************/
-//           CLASSES CÔTÉ BASE
-/*************************************************/
-
-class Canon 
-{
-    private:
-        int id;
-        QString graphie; 
-    public:
-        Canon (QString g);       // création par la graphie
-        Canon (int i);           // lecture Ã  partir de la base
-};
-
-class Expression
-{
-    private:
-        QString nom; 
-        QString doc;
-        QList<Morphos *> morphos;
-        int noyo; // pos dans l'expr du mot sous lequel elle s'affichera
-        int posInP; // position du noyau dans la phrase
-        int de;
-        QString en;
-        int avec;
-    public:
-        Expression (QString n);        // créateur avec int id
-        QString humain ();       // notice affichée par Collatinus
-        QString getNom ();
-        QString getDoc ();
+        Mot (QString d, Lexicum* l, bool expr=false);
+        QString graphie ();
+        QStringList getCanons ();
+        QStringList getEntrees ();
+        QList<AnalyseMorpho*> getAnalyses ();
+        void setPos (int p);
+        void setPosExpr (int p);
+        int getPosExpr ();
+        void setNoyau (bool n);
+        bool estNoyau ();
+        void setAvec (int a);
+        void setEn (QString en);
+        int getAvec ();
         QString getEn ();
-        QString lemme_noyau ();
-        int countMorphos ();
-        int getPosInP ();
-        void setPosInP (int p);
-        Morphos * getMorpho (int im);
-        bool accordVoulu ();
-};    
-
-typedef QMultiMap<QString, Expression*> L_expressions; 
-class Liste_expr
-{
-    private:
-        L_expressions expressions;
-    public:
-        Liste_expr (QString f);
-        ~Liste_expr ();
-        QList<Expression*> expr_lemme (QString l);
+        bool accord (Mot * avec);
+        void setExpr (QString e);
+        QString expression ();
+        QString lemmatisation ();
 };
 
-
-// *************
-// CLASSE PHRASE
-// *************
-
-// phrase du texte préparée pour le 
-// traitement fait par Requete
 class Phrase: public QObject
 {
     Q_OBJECT
     private:
-        QString graphie;
-        QList<Mot *> mots;
-        QList<Expression *> liste_expressions;
-        TLexicum * lexicum;
-        void cherche_expressions ();
-        int de;
-        int avec;
-        QString en;
-        //bool requis_vus ();
+        QList<Mot*> mots;
+        int debut; // numéro du premier caractère
+        int fin;   // numéro du dernier caractère
     public:
-        int debut;
-        int fin; // début et fin pour repérage éventuel dans un texte.
-        Phrase (QString t, TLexicum * l);
-        virtual ~Phrase ();
-        bool aiLeCanon (QString c);
-        QList<Expression *> expressions ();
-	    Mot * mot_no (int n);
-        Mot * motExpr (Morphos * m); // mot non adopté satisfaisant la morpho m
-        Expression * expression_no (int n); 
-        bool accord (int de, QString en, int avec);
-        QString analyse ();
-	    QStringList * analyse_et_lemmes ();
-        void initAdoptes ();
+        Phrase (QString txt, int d, int f, Lexicum * l);
+        ~Phrase ();
+        QList<Mot*> getMots ();
+        bool enPhrase (int p);
+        bool aLeCanon (int pe, Mot * me);
+        Mot * getMot (int i);
+        QList<Mot*> getMotsExpr ();
+        void resetMotsExpr ();
 };
 
-
-// *************
-// CLASSE TEXTE
-// *************
-
-class Texte
+class Expression: public QObject
 {
+    Q_OBJECT
     private:
-    QList<Phrase *> phrases;
+        QString latin;
+        QString francais;
+        QList<Mot*> mots;
+        int noNoyau; // numéro du noyau
     public:
-    Texte ();
-    ~Texte ();
-    void ajoute_phrase (Phrase * p);
-    void vide_phrases ();
-    bool phrase_at_pos (int p);
-    Phrase * phrase_pos (int p);
+        Expression (QString lin, Lexicum * l);
+        QStringList getNoyau ();
+        QList<Mot*> getMots ();
+        QString humain ();
 };
 
-void lis_expr (QString ch);
-
-void cree_texte ();
-
-void vide_phrases ();
-
-bool phrase_at_pos (int p);
-
-void cree_phrase (QString p, int d, int f, TLexicum * l);
-
-QString analyse_syntaxique (int p, int mot_no); //, QString &canon);
-
+class Syntaxe: public QObject
+{
+    Q_OBJECT
+    private:
+        Lexicum * lexicum;
+        QMultiHash<QString,Expression*> expressions;
+        Phrase * phrase;
+        QStringList echecs; // échecs
+    public:
+        Syntaxe (QString f, Lexicum * l); // f = fichier des données
+        Phrase * getPhrase;
+        bool enPhrase (int p);
+        void creePhrase (QString txt, int d, int f);
+        void deletePhrase ();
+        QStringList exprPhr (QString fc);
+        QStringList getEchecs ();
+        QStringList lemmatisation (bool alpha);
+};
 
 #endif

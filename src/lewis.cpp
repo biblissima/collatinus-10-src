@@ -25,10 +25,17 @@
  * Dictionnaire *
  ****************/
 
+/**
+ * @brief Dictionnaire::Dictionnaire
+ *
+ * Initialise le dictionnaire avec les données trouvées dans le fichier cfg
+ * @param cfg : nom du fichier de configuration
+ */
 Dictionnaire::Dictionnaire (QString cfg)
 {
     QFileInfo fi(cfg);
     repertoire = qApp->applicationDirPath () + "/ressources/dicos/";
+    // éviter de redéfinir partout le répertoire de travail.
     n = fi.baseName ().section ('.', 0);
     // lire le fichier de ressource cfg
     QSettings settings (repertoire + cfg, QSettings::IniFormat);
@@ -56,12 +63,22 @@ Dictionnaire::Dictionnaire (QString cfg)
     djvu = !xml;
 }
 
+/**
+ * @brief Dictionnaire::nom
+ * @return le nom du dictionnaire
+ */
 QString Dictionnaire::nom ()
 {
     return n;
 }
 
-
+/**
+ * @brief Dictionnaire::convert
+ *
+ * Convertit un texte en XML en HTML à l'aide du fichier nom.xsl
+ * @param source : le texte en XML
+ * @return Le texte en HTML
+ */
 QString Dictionnaire::convert (QString source)
 {
     QXmlQuery query(QXmlQuery::XSLT20);
@@ -78,6 +95,13 @@ QString Dictionnaire::convert (QString source)
     return retour ;
 }
 
+/**
+ * @brief Dictionnaire::entree_pos
+ *
+ * Lit l'article du dictionnaire qui débute à la position pos
+ * @param pos : entier 64 avec la position du début de l'article dans le fichier
+ * @return Le texte de l'article en HTML
+ */
 QString Dictionnaire::entree_pos (qint64 pos)
 {
    QFile file (chData);
@@ -101,16 +125,38 @@ QString Dictionnaire::entree_pos (qint64 pos)
    return "Error. Nil legere potui.";
 }
 
+/**
+ * @brief Dictionnaire::vide_index
+ *
+ * Efface l'index du dictionnaire djvu
+ *
+ * Cf. lis_index_djvu ()
+ */
 void Dictionnaire::vide_index ()
 {
     idxDjvu.clear ();
 }
 
+/**
+ * @brief Dictionnaire::vide_ligneLiens
+ *
+ * Efface la ligne de liens vers les divers articles qui s'affichent dans une page xml
+ *
+ * Jamais utilisée.
+ */
 void Dictionnaire::vide_ligneLiens ()
 {
     ligneLiens.clear ();
 }
 
+/**
+ * @brief Dictionnaire::lis_index_djvu
+ *
+ * Lit le fichier d'index du dico en djvu
+ *
+ * Cf. vide_index ()
+ * @return false si la lecture échoue
+ */
 bool Dictionnaire::lis_index_djvu ()
 {
     QFile f (idxJv);
@@ -125,6 +171,14 @@ bool Dictionnaire::lis_index_djvu ()
     return true;
 }
 
+/**
+ * @brief Dictionnaire::pageDjvu
+ *
+ * Extrait du fichier djvu la page demandée au format TIF
+ * qui sera affichée dans le navigateur.
+ * @param p : numéro de la page du dictionnaire à afficher
+ * @return le texte HTML pour afficher la page de dictionnaire
+ */
 QString Dictionnaire::pageDjvu (int p)
 {
 #ifdef Q_OS_MAC
@@ -181,6 +235,18 @@ QString Dictionnaire::pageDjvu (int p)
     return pg;
 }
 
+/**
+ * @brief Dictionnaire::pageDjvu
+ *
+ * Crée la ligne de liens correspondants aux différents lemmes présents dans la requête, req.
+ * Convertit la page contenant l'item n° no dans la liste req en TIF.
+ * Retourne le texte HTML complet.
+ *
+ * Appelle pageDjvu (int p)
+ * @param req : QStringList contenant le résultat de la lemmatisation
+ * @param no : numéro de l'item affiché
+ * @return le texte HTML qui affiche l'image de la page du dictionnaire djvu
+ */
 QString Dictionnaire::pageDjvu (QStringList req, int no)
 {
     // seul le lemme n° noLien est affiché, les autres sont en hyperliens.
@@ -390,6 +456,16 @@ void ListeDic::change_courant (QString nom)
 Dictionnaire * ListeDic::courant ()
 {
     return currens;
+}
+
+void ListeDic::change_courant2 (QString nom)
+{
+    currens2 = dictionnaire_par_nom (nom);
+}
+
+Dictionnaire * ListeDic::courant2 ()
+{
+    return currens2;
 }
 
 QString Dictionnaire::ramise (QString f)

@@ -33,8 +33,6 @@
 #include <QProcessEnvironment>
 #endif   
 
-#include "syntaxe.h"
-
 /**
  * Notes Mac OS X specifiques :
  *      Q_OS_MAC est defini par Qt si la platforme cible est Mac Os
@@ -49,33 +47,20 @@ bool morphologia = true; // autorise/interdit l'affichage des morphologies.
 bool syntaxis = true;
 bool calepino;
 
-// prima renvoie le premier mot de l
-QString prima (QString l)
-{
-    QRegExp re ("^\n?(\\w+)");
-    int pos = re.indexIn(l);
-    if (pos > -1)
-    {
-       return re.cap (1);
-    }
-    return "";
-}
-
 /**
  * La classe Editeur reimplemente mousePressEvent,
  * qui n'est pas capturé par défaut dans QTextEdit.
  * une instance de cette classe est insérée
  * manuellement dans la partie haute de la fenêtre.
  */
-Editeur::Editeur (QWidget *parent, const char *name, TLexicum * l, fenestra * f) : 
+Editeur::Editeur (QWidget *parent, const char *name, Lexicum * l, fenestra * f) : 
     QTextEdit(tr(""), parent)
 {
     setAccessibleName(QString::fromUtf8(name));
     lexicum = l;
     scand = false;
     fen = f;
-    ponctPhr = "[\\.\\;\\:\\?\\!]";
-    sepPhr = QRegExp (ponctPhr);
+    ponctPhr = ".;:?!";
 }
 
 void Editeur::changeMajPert (bool m)
@@ -87,57 +72,36 @@ QString Editeur::lemmatiseTxt_expr (bool alpha)
 {
     QTextCursor C (document ());
     QTextCursor tc2 (document ());
-    Phrase * P;
+
     QStringList lignes;
     QStringList echecs;
+    int debut=0, fin=0;
     while (!C.atEnd ())
     {
+        debut = C.position ();
         tc2 = document ()->find (QRegExp ("[\\.\\;\\:\\?\\!]"), C);
         if (tc2.isNull ()) 
             C.movePosition (QTextCursor::End, QTextCursor::KeepAnchor); 
         else C.setPosition (tc2.position (), QTextCursor::KeepAnchor); 
-        P = new Phrase (C.selectedText (), lexicum);
-        QStringList * sl = P->analyse_et_lemmes ();
-        QString l;
-        for (int i=0;i<sl->size();i++) 
-        {
-            l = sl->at (i);
-            if (alpha && (l == P->mot_no (i)->getGraphie ()+" ?"))
-            {
-                echecs << l+"<br/>";
-                continue;
-            }
-            if (!l.isEmpty ())
-            {
-                // rétablir les lignes
-                QStringList ll = sl->at (i).split ("<br>\n");
-                foreach (QString lin, ll)
-                {
-                    lin = lin.trimmed ();
-                    if (lin.isEmpty ()) continue;
-                    if (lin == P->mot_no (i)->getGraphie ()+" ?")
-                        lin = QString ("<span style=\"color:blue;\">%1</span>").arg (lin);
-                    lignes << lin;
-                }
-            }
-        }
-        delete sl;
-        delete P;
+        fin = C.position ();
+        syntaxe->creePhrase (C.selectedText ().simplified (), debut, fin);
+        lignes << syntaxe -> lemmatisation (alpha);
+        echecs << syntaxe -> getEchecs ();
         if (!C.atEnd ()) C.movePosition (QTextCursor::Right);
-        // qApp->processEvents ();
     }
     if (alpha)
     {
         lignes.removeDuplicates ();
-        qSort (lignes.begin (), lignes.end (), sort_i);
+        qSort (lignes.begin (), lignes.end (), Ch::sort_i);
     }
     if (!echecs.empty ())
     {
-        lignes.append ("<br/>\n<strong>HAEC NON RECOGNITA</strong><br/>\n");
-        lignes.append (echecs);
+        lignes << "-----<br/>" << "<strong>HAEC NON RECOGNITA:</strong><br/>";
+        echecs.removeDuplicates ();
+        lignes << echecs;
     }
     moveCursor (QTextCursor::Start);
-    return lignes.join ("<br/>\n");
+    return lignes.join ("\n");
 }
 
 void Editeur::mousePressEvent (QMouseEvent *event)
@@ -165,18 +129,15 @@ void Editeur::mouseReleaseEvent (QMouseEvent *event)
     QStringList llm; // liste des lemmatisations
     QStringList lfl; // liste des flexions
     QStringList lnk; // ligne d'hyperliens pour la flexion
-    Tentree * e;
-    Tentree * ae=NULL; // entrée, ancienne entrée
+    Entree * e;
+    Entree * ae=NULL; // entrée, ancienne entrée
     QString k, kr;
-    int mot_num = -1;
     ListeAnalyses analyses = lexicum->lanalyses (mc, deb_phr);
     int pos = C.position ();
-    bool syntaxevue = false;
     listekr.clear ();
-    for (std::multimap<QString, AnalyseMorpho*>::iterator it = analyses.begin (); it != analyses.end (); ++it)
+    foreach (AnalyseMorpho * am, analyses)
     {
-        e = it->second->entree ();
-        // k = e->canon ();
+        e = am->entree ();
         kr = e->canonR ();
         if (!e->egale (ae) || ci == 2)
         {
@@ -184,9 +145,25 @@ void Editeur::mouseReleaseEvent (QMouseEvent *event)
             { 
                 case 0: // lemmatisation
                     if (calepino)
-                        llm.append ("\n<br/><strong>" + e->quantite () + "</strong>" + lexicum->ambrogio (e));
+                        llm.append ("\n<br/>" + e->quantite () + lexicum->ambrogio (e));
                     else llm << e->definition (lexicum->lang ());
-                    if (syntaxis && ! syntaxevue)
+                    if (syntaxis)
+                    {
+                        if (!syntaxe->enPhrase (pos))
+                        {
+                            QTextCursor tc = document ()->find (Ch::rePonct, C, QTextDocument::FindBackward);
+                            int debut = tc.position ();
+                            if (tc.isNull ()) tc = QTextCursor (document ());
+                            QTextCursor tc2 = document ()->find (Ch::rePonct, C);
+                            int fin = tc2.position ();
+                            tc.setPosition (fin, QTextCursor::KeepAnchor); 
+                            QString txt = tc.selectedText ();
+                            syntaxe->creePhrase (txt, debut, fin);
+                        }
+                        llm << syntaxe->exprPhr (e->canon ());
+                    }
+                    /*
+                    if (syntaxis
                     {
                         syntaxevue = true;
                         int debut = 0;
@@ -215,9 +192,10 @@ void Editeur::mouseReleaseEvent (QMouseEvent *event)
                             llm.append (as);
                     }
                     break;
+                    */
                 case 2: // scansion 
                     {
-                        lfq.append (it->second->getForm ());
+                        lfq.append (am->getForm ());
                     }
                     break;
                 case 3: // flexion
@@ -299,18 +277,27 @@ QString Editeur::motCourant (QTextCursor C)
 
 bool Editeur::debPhr (QTextCursor C)
 {
+    // 13 novembre 2015
+    // Cette routine bloque le programme quand j'ai une liste de mots (un par ligne)
+    QTextCursor C1 = C;
+    C1.movePosition(QTextCursor::StartOfLine);
+    int debLigne = C1.position(); // J'introduis la position du début de la ligne
     QChar car = 'a';
-    while (car.isLetter () && C.position () > 0)
+    while (car.isLetter () && C.position () > debLigne)
     { 
-        C.movePosition (QTextCursor::Left, QTextCursor::KeepAnchor);
+        if (!C.movePosition (QTextCursor::Left, QTextCursor::KeepAnchor)) continue;
         car = C.selectedText ().at (0);
     }
-    while (!car.isPunct () && !car.isLetter () && C.position () > 0)
+    if (C.position () == debLigne) return true;
+    // En poésie, on trouve souvent une majuscule en début de vers
+    while (!car.isPunct () && !car.isLetter () && C.position () > debLigne)
     {
-       C.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor);
+       if (!C.movePosition(QTextCursor::Left, QTextCursor::KeepAnchor)) continue;
        car = C.selectedText ().at (0);
     }
-    return ponctPhr.contains (car) || C.position () == 0; 
+    if (!car.isLetter () && C.position () == debLigne) return true;
+    // Au cas où le vers commencerait par des " (ou autre)
+    return ponctPhr.contains (car);
 }
 
 void Editeur::videListek ()
@@ -333,19 +320,25 @@ QStringList Editeur::req ()
    return listekr;
 }
 
+void Editeur::setSyntaxe (Syntaxe * s)
+{
+    syntaxe = s;
+}
+
 void fenestra::majDic ()
 {
     comboGlossaria->clear ();
     QDir chDicos (qsuia+"/dicos");
     QStringList lcfg = chDicos.entryList (QStringList () << "*.cfg");
-    QStringList ldic;
+//    QStringList ldic;
+    ldic.clear();
     foreach (QString fcfg, lcfg)
     {
         Dictionnaire * d = new Dictionnaire (fcfg);
         listeD.ajoute (d);
         ldic << d->nom ();
     }
-    comboGlossaria->insertItems (0, ldic); 
+    comboGlossaria->insertItems (0, ldic);
 }
 
 fenestra::fenestra (QString url)
@@ -357,7 +350,8 @@ fenestra::fenestra (QString url)
     setupUi(this);
     // ajout dynamique des dictionnaires
     majDic ();
-    lexicum = new TLexicum ();
+    lexicum = new Lexicum (qsuia);
+    syntaxe = new Syntaxe (qsuia+"expressions.fr", lexicum);
     // dresser la liste des ressources. Module maj.
     actionAuxilium->setShortcut(QKeySequence::HelpContents);
     action_Noua->setShortcut(QKeySequence::New    );
@@ -385,6 +379,7 @@ fenestra::fenestra (QString url)
     stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 #endif
     EditLatin = new Editeur (this, "EditLatin", lexicum, this);
+    EditLatin->setSyntaxe (syntaxe);
     EditLatin->setObjectName (QString::fromUtf8("EditLatin"));
     QSizePolicy sizePolicy3(static_cast<QSizePolicy::Policy>(13), static_cast<QSizePolicy::Policy>(13));
     setSizePolicy(sizePolicy3);
@@ -396,10 +391,10 @@ fenestra::fenestra (QString url)
     */
     splitter->insertWidget(0,EditLatin);
     createActions ();
-    lis_expr (qsuia + "expressions.fr");
     lis_prefs (url);
-    cree_texte ();
     httpWin = NULL;
+    fen_Dic = NULL;
+    extraDicVisible = false;
 }
 
 fenestra::~fenestra ()
@@ -437,7 +432,10 @@ void fenestra::ecris_prefs ()
     settings.beginGroup ("lemmatisation");
     settings.setValue ("syntaxis", syntaxis);
     settings.setValue ("cum_uocibus", actionCum_textus_uocibus->isChecked ());
+    settings.setValue ("cum_morphoB", actionMorphologia_in_bullis->isChecked ());
+    settings.setValue ("cum_morphoL", actionMorphologia_in_lemmatibus->isChecked ());
     settings.setValue ("Maj_pert", actionMaj->isChecked ());
+    settings.setValue ("verif_morpho", verifMorpho);
     settings.endGroup();
     settings.beginGroup ("langues");
     settings.setValue ("cible", lexicum->lang ());
@@ -471,6 +469,10 @@ void fenestra::lis_prefs (QString url)
     syntaxis = settings.value ("syntaxis").toBool ();
     actionSyntaxis->setChecked (syntaxis);
     change_syntaxe ();
+    actionMorphologia_in_bullis->setChecked (settings.value ("cum_morphoB").toBool ());
+    actionMorphologia_in_lemmatibus->setChecked (settings.value ("cum_morphoL").toBool ());
+    verifMorpho = settings.value ("verif_morpho").toBool ();
+
     actionCum_textus_uocibus->setChecked (settings.value ("cum_uocibus").toBool ());
     actionMaj->setChecked (settings.value ("Maj_pert").toBool ());
     EditLatin->changeMajPert (actionMaj->isChecked ());
@@ -555,8 +557,13 @@ bool fenestra::capsaminDiscum (const QString &fileName)
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QString debutLexique = "\n---lexique---\n";
+    if (fileName.endsWith(".xml"))
+    {
+        out << lexicum->txt2XML (EditLatin->toPlainText ());
+        // sortie au format xml avec toute l'information
+    }
     // selon l'onglet
-    if (ci == 0)  // texte
+    else if (ci == 0)  // texte
     {
         // tester le suffixe
         if (fileName.contains (".htm"))
@@ -616,12 +623,12 @@ bool fenestra::scribereVt ()
     switch (tabWidget->currentIndex ())
     {
         case 0: // lemmatisation
-            format = tr ("html (*.html);;txt (*.txt);;quam libet (*)");
+            format = tr ("html (*.html);;xml (*.xml);;txt (*.txt);;quam libet (*)");
             LQ = "_L";
             ext = "html";
             break;
         case 2: // quantités
-            format = tr ("textus (*.txt);;html (*.html;;quam libet (*)");
+            format = tr ("textus (*.txt);;xml (*.xml);;html (*.html;;quam libet (*)");
             LQ = "_Q";
             ext = "txt";
             break;
@@ -639,7 +646,9 @@ bool fenestra::scribereVt ()
         ext = ".txt";
     else if (ext.contains ("tex"))
         ext = ".tex";
-    else 
+    else if (ext.contains ("xml"))
+        ext = ".xml";
+    else
     {
         QFileInfo fi (capsaEx);
         if (fi.suffix ().isEmpty ()) 
@@ -653,6 +662,15 @@ bool fenestra::scribereVt ()
     return capsaminDiscum (capsaEx);
 } // scribereVt ()
 
+void fenestra::oteDiac()
+{
+    QString contenu = EditLatin->toPlainText ();
+    contenu = contenu.normalized(QString::NormalizationForm_D,QChar::currentUnicodeVersion());
+    contenu.remove("\u0301");
+    contenu.remove("\u0306");
+    contenu.remove("\u0304");
+    EditLatin->setPlainText(contenu);
+}
 
 /**
  * Charge le fichier nomme fileName dans
@@ -707,8 +725,6 @@ void fenestra::capsamInLatinum (const QString &fileName)
     }
     QApplication::restoreOverrideCursor();
     statusBar()->showMessage(tr("Capsa onerata"), 2000);
-    // réinitialiser la syntaxe
-    vide_phrases ();
     dernierT = fileName;
 } // capsamInLatinum 
 
@@ -735,7 +751,7 @@ bool fenestra::event (QEvent *event)
     return QWidget::event (event);
 }
 
-void fenestra::flechis (Tentree * e)
+void fenestra::flechis (Entree * e)
 {
     EditFlexio->append ("<div id=\"" + e->quantite () + "/>");
     EditFlexio->append (lexicum->flechis (e));
@@ -743,7 +759,6 @@ void fenestra::flechis (Tentree * e)
 
 void fenestra::affiche_flexion_saisie ()
 {
-    QStringList lfl; // liste des flexions
     EditFlexio->clear ();
     ListeAnalyses analyses = lexicum->lanalyses (SaisieFlexion->text ());
     if (analyses.size () == 0)
@@ -751,11 +766,12 @@ void fenestra::affiche_flexion_saisie ()
         EditFlexio->append (SaisieFlexion->text () + " ?");
         return;
     }
-    Tentree * ae = NULL;
+    QStringList lfl; // liste des flexions
+    Entree * ae = NULL;
     QStringList lnk;
-    for (std::multimap<QString, AnalyseMorpho*>::iterator it = analyses.begin (); it != analyses.end (); ++it)
+    foreach (AnalyseMorpho * am, analyses)
     {
-        Tentree * e = it->second->entree ();
+        Entree * e = am->entree ();
         if (e != ae) 
         {
             lnk.append (e->quantite ());
@@ -770,14 +786,14 @@ void fenestra::affiche_flexion_saisie ()
         liens.append ("<a href=\"#"+l+"\">"+l+"</a>&nbsp;");
     }
     liens.append ("<br/n>\n");
-                QString html;
-                for (int i=0;i<lnk.length ();++i)
-                {
-                    html.append ("<div id=\""+lnk[i]+"\">");
-                    html.append (liens);
-                    html.append (lfl[i]);
-                    html.append ("</div>\n");
-                }
+    QString html;
+    for (int i=0;i<lnk.length ();++i)
+    {
+        html.append ("<div id=\""+lnk[i]+"\">");
+        html.append (liens);
+        html.append (lfl[i]);
+        html.append ("</div>\n");
+    }
     EditFlexio->insertHtml (html);
 }
 
@@ -825,11 +841,69 @@ void fenestra::noua ()
      {
          EditLatin->clear ();
          EditTextus->clear ();
-         vide_phrases ();
          EditLatin->setFocus ();
          capsaIn.clear ();
          capsaEx.clear ();
      }
+}
+
+void fenestra::tabulaFormae()
+{
+    capsaIn = QFileDialog::getOpenFileName(this, "Capsam legere", repertoire);
+    if (!capsaIn.isEmpty())
+    {
+        nomen = QFileInfo (capsaIn).baseName ();
+        repertoire = QDir (capsaIn).absolutePath ();
+        QFile file(capsaIn);
+        if (!file.open(QFile::ReadOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("Collatinus"),
+                                 tr("Capsam legere nequeo %1:\n%2.")
+                                 .arg(capsaIn)
+                                 .arg(file.errorString()));
+            return;
+        }
+
+        QTextStream in(&file);
+        QFile fout(QFileInfo (capsaIn).absolutePath()+"/tabula.csv");
+        QFile ferr(QFileInfo (capsaIn).absolutePath()+"/erreurs.txt");
+        if (!fout.open(QFile::WriteOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("Collatinus"),
+                                 tr("Capsam nequeo scribere %1:\n%2.")
+                                 .arg("tabula.csv")
+                                 .arg(file.errorString()));
+            return;
+        }
+        if (!ferr.open(QFile::WriteOnly | QFile::Text))
+        {
+            QMessageBox::warning(this, tr("Collatinus"),
+                                 tr("Capsam nequeo scribere %1:\n%2.")
+                                 .arg("erreurs.txt")
+                                 .arg(file.errorString()));
+            return;
+        }
+        QTextStream out(&fout);
+        QTextStream err(&ferr);
+        while (!in.atEnd())
+        {
+            QString ligne = in.readLine();
+            if (!ligne.isEmpty())
+            {
+                QString liste = lexicum->flechis(ligne);
+                if (liste.isEmpty()) err << ligne << "\n";
+                else out << liste;
+            }
+        }
+        file.close();
+        fout.close();
+        ferr.close();
+    }
+}
+
+void fenestra::verbaCognita(bool vb)
+{
+    lexicum->verbaCognita(repertoire,vb);
 }
 
 void fenestra::legere ()
@@ -878,6 +952,34 @@ void fenestra::closeEvent(QCloseEvent *event)
         event->ignore();
     }
     if (httpWin != NULL) httpWin->close ();
+    if (fen_Dic != NULL) fen_Dic->close ();
+}
+
+bool fenestra::verif_morpho ()
+{
+    if (verifMorpho) return true;
+    QMessageBox reponse(this);
+    reponse.setText(tr("Haec optio in minoribus computatris lentissima est. Pergere uis?"));
+    reponse.addButton(tr("Nolo."), QMessageBox::RejectRole);
+    reponse.addButton(tr("Volo"), QMessageBox::AcceptRole);
+    reponse.addButton(tr("Volo, Noli iam hoc roga."), QMessageBox::DestructiveRole);
+    reponse.setWindowTitle(tr("Cautio"));
+    reponse.setIcon(QMessageBox::Question);
+    reponse.setWindowModality(Qt::WindowModal);
+    switch (reponse.exec()) 
+    {
+        case QDialog::Accepted:
+                return true;
+        case QDialog::Rejected:
+                return false;
+        case QMessageBox::DestructiveRole:
+            {
+                verifMorpho = true;
+                return true;
+            }
+        default:
+                return false;
+    }
 }
 
 void fenestra::lemmatiseTout (bool alpha)
@@ -887,9 +989,16 @@ void fenestra::lemmatiseTout (bool alpha)
     if (ci == 0)
     {
         if (syntaxis) T = EditLatin->lemmatiseTxt_expr (alpha);
-        else T = lexicum->lemmatiseTxt (EditLatin->toPlainText (),
+        else
+        {
+            QString texte = EditLatin->toPlainText ();
+            T = lexicum->lemmatiseTxt (texte,
                                         alpha,
-                                        actionCum_textus_uocibus->isChecked ());
+                                        actionCum_textus_uocibus->isChecked (),
+                                        actionMorphologia_in_lemmatibus->isChecked () && verif_morpho ());
+            if (texte.contains("<span")) EditLatin->setHtml(texte);
+            // Le texte a été modifié, donc colorisé.
+        }
     }
     if (ci == 0)
     {
@@ -899,7 +1008,7 @@ void fenestra::lemmatiseTout (bool alpha)
     if (ci == 2)
     {
         EditQuantites->clear ();
-        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText ()));
+        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText (), alpha, false));
     }
 }
 
@@ -921,7 +1030,7 @@ void fenestra::frequences ()
     else if (ci == 2)
     {
         EditQuantites->clear ();
-        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText (), true));
+        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText (), false, true));
     }
 }
 
@@ -946,6 +1055,296 @@ void fenestra::calepin ()
 /*************************************
  *            DICTIONNAIRES          *
  *************************************/
+
+void fenestra::init_fen_Dic()
+{
+    // Initialisation de la fenêtre supplémentaire, fen_Dic, avec tous les boutons nécessaires.
+    // Je me suis inspiré du code généré à partir de Collatinus.ui : ui_Collatinus.h
+
+    fen_Dic->resize(800, 600);
+    fen_Dic->setObjectName(QStringLiteral("fen_Dic"));
+    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy1.setHeightForWidth(fen_Dic->sizePolicy().hasHeightForWidth());
+    fen_Dic->setSizePolicy(sizePolicy1);
+
+    vboxLayout22 = new QVBoxLayout(fen_Dic);
+    vboxLayout22->setObjectName(QStringLiteral("vboxLayout22"));
+    horizontalLayout22 = new QHBoxLayout();
+    horizontalLayout22->setObjectName(QStringLiteral("horizontalLayout22"));
+    // Un layout vertical avec un layout horizontal en haut et le QTextBrowser en bas
+
+    entree_felix2 = new QLabel(fen_Dic);
+    entree_felix2->setObjectName(QStringLiteral("entree_felix2"));
+    QSizePolicy sizePolicy3(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    sizePolicy3.setHorizontalStretch(0);
+    sizePolicy3.setVerticalStretch(0);
+    sizePolicy3.setHeightForWidth(entree_felix->sizePolicy().hasHeightForWidth());
+    entree_felix2->setSizePolicy(sizePolicy3);
+    entree_felix2->setTextFormat(Qt::AutoText);
+    entree_felix2->setText("?");
+
+    horizontalLayout22->addWidget(entree_felix2);
+
+    saisie_felix2 = new QLineEdit(fen_Dic);
+    saisie_felix2->setObjectName(QStringLiteral("saisie_felix"));
+    saisie_felix2->setMaximumSize(QSize(859, 16777215));
+
+    horizontalLayout22->addWidget(saisie_felix2);
+
+    felixButton2 = new QPushButton(fen_Dic);
+    felixButton2->setObjectName(QStringLiteral("felixButton2"));
+    QIcon icon215;
+    icon215.addFile(QStringLiteral(":/images/svg/dicolem.svg"), QSize(), QIcon::Normal, QIcon::Off);
+    felixButton2->setIcon(icon215);
+
+    horizontalLayout22->addWidget(felixButton2);
+
+    bDicoLitt2 = new QPushButton(fen_Dic);
+    bDicoLitt2->setObjectName(QStringLiteral("bDicoLitt2"));
+    QIcon icon216;
+    icon216.addFile(QStringLiteral(":/images/svg/dicolitt.svg"), QSize(), QIcon::Normal, QIcon::Off);
+    bDicoLitt2->setIcon(icon216);
+
+    horizontalLayout22->addWidget(bDicoLitt2);
+
+    comboGlossaria2 = new QComboBox(fen_Dic);
+    comboGlossaria2->setObjectName(QStringLiteral("comboGlossaria"));
+    QSizePolicy sizePolicy4(QSizePolicy::Minimum, QSizePolicy::Fixed);
+    sizePolicy4.setHorizontalStretch(0);
+    sizePolicy4.setVerticalStretch(0);
+    sizePolicy4.setHeightForWidth(comboGlossaria2->sizePolicy().hasHeightForWidth());
+    comboGlossaria2->setSizePolicy(sizePolicy4);
+
+    horizontalLayout22->addWidget(comboGlossaria2);
+
+    AnteButton2 = new QPushButton(fen_Dic);
+    AnteButton2->setObjectName(QStringLiteral("AnteButton"));
+    AnteButton2->setEnabled(true);
+
+    horizontalLayout22->addWidget(AnteButton2);
+
+    labelLewis2 = new QLabel(fen_Dic);
+    labelLewis2->setObjectName(QStringLiteral("labelLewis"));
+    QFont font3;
+    font3.setPointSize(14);
+    labelLewis2->setFont(font3);
+
+    horizontalLayout22->addWidget(labelLewis2);
+
+    PostButton2 = new QPushButton(fen_Dic);
+    PostButton2->setObjectName(QStringLiteral("PostButton"));
+
+    horizontalLayout22->addWidget(PostButton2);
+
+    horizontalSpacer = new QSpacerItem(36, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+    horizontalLayout->addItem(horizontalSpacer);
+
+    vboxLayout22->addLayout(horizontalLayout22);
+
+    fen_dic = new QTextBrowser (fen_Dic);
+    fen_dic->setObjectName(QStringLiteral("fen_dic"));
+    QFont font1;
+    font1.setBold(false);
+    font1.setWeight(50);
+    fen_dic->setFont(font1);
+    fen_dic->setOpenExternalLinks(true);
+
+    vboxLayout22->addWidget (fen_dic);
+
+    // Ma fenêtre est prête.
+
+    comboGlossaria2->insertItems (0, ldic);
+    listeD.change_courant2 (comboGlossaria->currentText ());
+    comboGlossaria2->setCurrentIndex(comboGlossaria->currentIndex());
+
+    //  Actions liées au dico
+        connect(saisie_felix2, SIGNAL(returnPressed ()), this, SLOT (affiche_lemme_saisie2 ()));
+        connect(comboGlossaria2, SIGNAL(currentIndexChanged(QString)), this, SLOT (change_glossarium2 (QString))); // nov
+        connect(AnteButton2, SIGNAL(clicked ()), this, SLOT (clicAnte2 ()));
+        connect(PostButton2, SIGNAL(clicked ()), this, SLOT (clicPost2 ()));
+        // hyperliens dans la page dictionnaire
+        connect(fen_dic, SIGNAL(anchorClicked (QUrl)), this, SLOT (affiche_lien2 (QUrl)));
+        connect(felixButton2, SIGNAL(clicked ()), this, SLOT (affiche_lemme_saisie2 ()));
+        connect(bDicoLitt2, SIGNAL(clicked ()), this, SLOT (affiche_lemme_saisie_litt2 ()));
+        // fin des actions liées au dico
+
+}
+
+void fenestra::affiche_lemmes_dic2 (QStringList lk, int no)
+{
+    if (lk.empty () || no < 0 || listeD.courant2 () == NULL)
+        return;
+    fen_dic->clear ();
+    fen_dic->setHtml (listeD.courant2 ()->page (lk, no));
+    saisie_felix2->setText (lk.at (no));
+    if (listeD.courant2 ()->estXml ())
+    {
+        AnteButton2->setText (listeD.courant2 ()->pgPrec ());
+        PostButton2->setText (listeD.courant2 ()->pgSuiv ());
+    }
+    else
+    {
+        AnteButton2->setText (tr ("Retro"));
+        PostButton2->setText (tr ("Porro"));
+        labelLewis2->setText (QString::number (listeD.courant2 ()->noPageDjvu ()));
+    }
+    fen_dic->setTextCursor(QTextCursor(fen_dic->document()));
+}
+
+void fenestra::affiche_lemme_saisie2 (bool litt)
+{
+    if (saisie_felix2->text ().isEmpty ())
+        return;
+    EditLatin->videListek ();
+    QStringList requete;
+    if (!litt)
+    {
+        ListeAnalyses analyses;
+        analyses = lexicum->lanalyses (saisie_felix2->text (), true);
+        foreach (AnalyseMorpho * am, analyses)
+        {
+            Entree *e = am->entree ();
+            requete << e->canonR ();
+        }
+        lexicum->deleteAnalyses (analyses);
+    }
+    if (requete.empty ()) requete << saisie_felix2->text ();
+    requete.removeDuplicates ();
+    fen_dic->setFocus ();
+    affiche_lemmes_dic2 (requete);
+    saisie_felix2->setFocus();
+    saisie_felix2->selectAll();
+}
+
+void fenestra::affiche_lemme_saisie_litt2 ()
+{
+    affiche_lemme_saisie2 (true);
+}
+
+
+void fenestra::change_page_djvu2 (int p)
+{
+    fen_dic->clear ();
+    fen_dic->setHtml (listeD.courant2 ()->pageDjvu (p));
+    labelLewis2->setText (QString::number (p));
+    fen_dic->setTextCursor(QTextCursor(fen_dic->document()));
+}
+
+void fenestra::affiche_lien2 (QUrl url)
+{
+    if (listeD.courant2 ()->estXml ())
+        return;
+    // la ligne de liens en tête de page doit être gardée
+    QStringList liens =  listeD.courant2 ()->links ();
+    int no = liens.indexOf (url.toString ());
+    if (no < 0) no = 0;
+    affiche_lemmes_dic2 (liens, no);
+}
+
+void fenestra::clicAnte2 ()
+{
+    EditLatin->videListek ();
+    listeD.courant2 ()->vide_ligneLiens ();
+    if (listeD.courant2 ()->estXml ())
+    {
+        affiche_lemmes_dic2 (QStringList () << AnteButton2->text ());
+    }
+    else
+    {
+        int p = labelLewis2->text ().toInt ();
+        if (p > 0)
+            change_page_djvu2 (labelLewis2->text ().toInt ()-1);
+    }
+}
+
+void fenestra::clicPost2 ()
+{
+    EditLatin->videListek ();
+    listeD.courant2 ()->vide_ligneLiens ();
+    if (listeD.courant2 ()->estXml ())
+    {
+        affiche_lemmes_dic2 (QStringList () << PostButton2->text ());
+    }
+    else
+    {
+        int p = labelLewis2->text ().toInt ();
+        if (p < 8888)   // ATTENTION, déclarer la dernière page dans les cfg !
+            change_page_djvu2 (labelLewis2->text ().toInt ()+1);
+    }
+}
+
+void fenestra::change_glossarium2 (QString nomDic)
+{
+    listeD.change_courant2 (nomDic);
+    if (listeD.courant2 () == NULL)
+        return;
+    fen_Dic->setWindowTitle("Collatinus : " + listeD.courant2 ()->nom());
+    if (listeD.courant2 ()->estXml ())
+    {
+        labelLewis2->setText ("\u2194");
+    }
+    else
+    {
+        listeD.courant2 ()->vide_index ();
+        labelLewis2->clear ();
+    }
+    QStringList req = EditLatin->req ();
+    if (!req.empty ())
+    {
+        affiche_lemmes_dic2 (req, req.indexOf (saisie_felix2->text ()));
+    }
+    else if (!saisie_felix2->text ().isEmpty())
+    {
+        affiche_lemmes_dic2 (QStringList () << saisie_felix2->text ());
+    }
+}
+
+void fenestra::lancerServeur(bool run)
+{
+    if (run)
+    {
+        QMessageBox::about(this,
+             tr("Serveur de Collatinus"), lexicum->startServer());
+
+    }
+    else
+    {
+        QMessageBox::about(this,
+             tr("Serveur de Collatinus"), lexicum->stopServer());
+
+    }
+}
+
+void fenestra::extra_dico(bool visible)
+{
+    if (fen_Dic == NULL)
+    {
+        // Elle n'existe pas, je dois la créer
+        fen_Dic = new QWidget ();
+        init_fen_Dic ();
+    }
+    extraDicVisible = visible;
+    if (visible)
+    {
+        fen_Dic->show();
+        fen_Dic->setWindowTitle("Collatinus : " + listeD.courant2 ()->nom());
+    }
+    else
+    {
+        fen_Dic->hide();
+    }
+}
+
+void fenestra::ampliatioGlossarii ()
+{
+    // benchmark 1ère mesure
+    qint64 tDebut = QDateTime::currentDateTime ().toMSecsSinceEpoch ();
+    lexicum->ampliatio();
+    action_ampliatio_glossarii->setEnabled(false);
+    // benchmark 2ème mesure
+    qDebug () << QDateTime::currentDateTime ().toMSecsSinceEpoch () - tDebut;
+}
 
 void fenestra::lexica_addere_corrigere ()
 {
@@ -977,6 +1376,24 @@ void fenestra::affiche_lemmes_dic (QStringList lk, int no)
         labelLewis->setText (QString::number (listeD.courant ()->noPageDjvu ()));
     }
 	EditFelix->setTextCursor(QTextCursor(EditFelix->document()));
+    if (extraDicVisible)
+    {
+        fen_dic->clear();
+        fen_dic->setHtml(listeD.courant2 ()->page(lk, no));
+        saisie_felix2->setText (lk.at (no));
+        if (listeD.courant2 ()->estXml ())
+        {
+            AnteButton2->setText (listeD.courant2 ()->pgPrec ());
+            PostButton2->setText (listeD.courant2 ()->pgSuiv ());
+        }
+        else
+        {
+            AnteButton2->setText (tr ("Retro"));
+            PostButton2->setText (tr ("Porro"));
+            labelLewis2->setText (QString::number (listeD.courant2 ()->noPageDjvu ()));
+        }
+        fen_dic->setTextCursor(QTextCursor(fen_dic->document()));
+    }
 }
 
 void fenestra::affiche_lemme_saisie (bool litt)
@@ -989,9 +1406,9 @@ void fenestra::affiche_lemme_saisie (bool litt)
     {
         ListeAnalyses analyses;
         analyses = lexicum->lanalyses (saisie_felix->text (), true);
-        for (std::multimap<QString, AnalyseMorpho*>::iterator it = analyses.begin (); it != analyses.end ();++it)
+        foreach (AnalyseMorpho * am, analyses)
         {
-            Tentree *e = it->second->entree ();
+            Entree *e = am->entree ();
             requete << e->canonR ();
         }
         lexicum->deleteAnalyses (analyses);
@@ -1000,6 +1417,8 @@ void fenestra::affiche_lemme_saisie (bool litt)
     requete.removeDuplicates ();
     EditFelix->setFocus ();
     affiche_lemmes_dic (requete);
+    saisie_felix->setFocus();
+    saisie_felix->selectAll();
 }
 
 void fenestra::affiche_lemme_saisie_litt ()
@@ -1149,7 +1568,17 @@ void fenestra::inuenire_denuo ()
 
 void fenestra::auxilium ()
 {
+    /*
+#ifdef Q_OS_MAC
+// Pour singulariser le Mac
+    QString chemin = qApp->applicationDirPath (); // .../Contents/MacOS
+    chemin.chop(5); // Supprime MacOS
+    chemin += "Resources/doc/index.html";
+    QDesktopServices::openUrl(QUrl("file:" + chemin));
+#else
+*/
     QDesktopServices::openUrl(QUrl("file:" + qApp->applicationDirPath () + "/doc/index.html"));
+// #endif
 }
 
 /**************
@@ -1178,9 +1607,9 @@ void fenestra::deest ()
     EditFelix->setHtml (pg);
 }
 
-void fenestra::vide_texte ()
+void fenestra::initPhrase ()
 {
-    vide_phrases ();
+    syntaxe->creePhrase ("", -1, -1);
 }
 
 void fenestra::controleIcone (int o)
@@ -1222,6 +1651,12 @@ QString fenestra::langInterf ()
 
 void fenestra::createActions ()
 {
+    connect (actionOter_les_accents, SIGNAL (triggered ()), this, SLOT (oteDiac()));
+    connect(action_ampliatio_glossarii, SIGNAL(triggered()), this, SLOT(ampliatioGlossarii()));
+    connect (actionTabula_Formae, SIGNAL (triggered ()), this, SLOT (tabulaFormae ()));
+    connect(actionVerba_cognita, SIGNAL(toggled(bool)), this, SLOT(verbaCognita(bool)));
+    connect(actionLancer_le_serveur, SIGNAL(toggled(bool)), this, SLOT(lancerServeur(bool)));
+    connect(actionExtra_dico, SIGNAL(toggled(bool)), this, SLOT(extra_dico(bool)));
     connect(action_Noua, SIGNAL(triggered()), this, SLOT(noua()));
     connect (action_Onerare, SIGNAL (triggered ()), this, SLOT (legere ()));
     connect (action_Scribere, SIGNAL (triggered ()), this, SLOT (scribere ()));
@@ -1232,7 +1667,7 @@ void fenestra::createActions ()
     connect (actionOmnia_lemmatizare, SIGNAL (triggered ()), this, SLOT(lemmatiseTout ()));
     connect (actionAlphabetice, SIGNAL (triggered ()), this, SLOT(alpha ()));
     connect (action_Frequentiae, SIGNAL (triggered ()), this, SLOT (frequences ()));
-    connect(EditLatin, SIGNAL(textChanged()), this, SLOT(vide_texte ())); // actionVide_texte, SLOT(trigger()));
+    connect(EditLatin, SIGNAL(textChanged()), this, SLOT(initPhrase ())); // actionVide_texte, SLOT(trigger()));
     connect(actionL_emmata_radere, SIGNAL(triggered()), this, SLOT(lemmataRadere()));
     connect(actionCalepino, SIGNAL(triggered ()), this, SLOT (calepin ()));
     connect(actionLexicaAddereCorrigere, SIGNAL(triggered ()), this, SLOT (lexica_addere_corrigere ()));
@@ -1243,8 +1678,9 @@ void fenestra::createActions ()
     connect(actionMaj, SIGNAL(toggled (bool)), EditLatin, SLOT (changeMajPert (bool)));
     connect(tabWidget, SIGNAL(currentChanged (int)), this, SLOT (controleIcone (int)));
     connect(actionMorphologia_in_bullis, SIGNAL(toggled (bool)), this, SLOT(change_morpho (bool)));
+    connect(SaisieFlexion, SIGNAL(editingFinished ()), this, SLOT (affiche_flexion_saisie ()));
+//  Actions liées au dico
     connect(saisie_felix, SIGNAL(returnPressed ()), this, SLOT (affiche_lemme_saisie ()));
-    connect(SaisieFlexion, SIGNAL(returnPressed ()), this, SLOT (affiche_flexion_saisie ()));
     connect(BFlexion, SIGNAL(clicked ()), this, SLOT (affiche_flexion_saisie ()));
     connect(comboGlossaria, SIGNAL(currentIndexChanged(QString)), this, SLOT (change_glossarium (QString))); // nov
     connect(AnteButton, SIGNAL(clicked ()), this, SLOT (clicAnte ()));
@@ -1253,6 +1689,7 @@ void fenestra::createActions ()
     connect(EditFelix, SIGNAL(anchorClicked (QUrl)), this, SLOT (affiche_lien (QUrl)));
     connect(felixButton, SIGNAL(clicked ()), this, SLOT (affiche_lemme_saisie ()));
     connect(bDicoLitt, SIGNAL(clicked ()), this, SLOT (affiche_lemme_saisie_litt ()));
+    // fin des actions liées au dico
     // langue d'interface
     QActionGroup * grInterface = new QActionGroup (this);
     actionLFrancais->setActionGroup (grInterface);
@@ -1273,21 +1710,25 @@ void fenestra::createActions ()
 
 int main( int argc, char **argv )
 {
+    QApplication app (argc, argv);
 #if (QT_VERSION < 0x050000)
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+    app.setStyle (new QPlastiqueStyle); // pour
 #endif
-    QApplication app (argc, argv);
 #ifdef Q_OS_LINUX
-    app.setStyle (new QPlastiqueStyle);
+    QApplication::setStyle(QStyleFactory::create("Fusion"));
 #endif
-    // langue des boîtes de dialogue
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
+#ifndef QT_NO_TRANSLATION
+    QString translatorFileName = QLatin1String("qt_");
+    translatorFileName += QLocale::system().name();
+    translatorFileName += ".qm";
+    QTranslator *translator = new QTranslator(&app);
+    if (translator->load(translatorFileName, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+        app.installTranslator(translator);
+#endif
     // répertoire des ressources
     qsuia = app.applicationDirPath () + "/ressources/";
-    //let's set a few variable use to get/load settings
+    QDir::setSearchPaths("donnees", QStringList(app.applicationDirPath () + "/ressources"));
     QCoreApplication::setOrganizationName("Collatinus");
     QCoreApplication::setOrganizationDomain("Collatinus.org");
     QCoreApplication::setApplicationName("Collatinus");

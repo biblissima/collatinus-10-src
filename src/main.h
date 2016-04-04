@@ -38,7 +38,9 @@
 #include <QApplication>
 #include <QtGui>
 #include <QTextEdit>
-#include "libcollatinus.h"
+
+#include "lexicum.h" // anciennement libcollatinus. Saucissonné le 27 novembre 2015
+#include "syntaxe.h"
 #include "lewis.h"
 #include "maj.h" // mise à jour à partir du serveur distant
 
@@ -49,7 +51,8 @@ class Editeur : public QTextEdit
     Q_OBJECT
 
     private:
-         TLexicum * lexicum;
+         Lexicum * lexicum;
+         Syntaxe * syntaxe;
          QStringList listek;
          QStringList listekr; // canons ramistes
          QStringList listekq;
@@ -58,7 +61,7 @@ class Editeur : public QTextEdit
          fenestra * fen;
          bool scand; // armé si l'onglet Quantites est visible
     public:
-         Editeur (QWidget *parent, const char *name, TLexicum * l, fenestra *f);
+         Editeur (QWidget *parent, const char *name, Lexicum * l, fenestra *f);
          QString motCourant (QTextCursor C);
          bool debPhr (QTextCursor C);
          QString lemmatiseTxt (bool alpha=0, bool cumVocibus = false);
@@ -78,8 +81,30 @@ class Editeur : public QTextEdit
     public slots:
          void changeMajPert (bool m);
          QStringList req ();
+         void setSyntaxe (Syntaxe * s);
 };
+/*
+class Fen_Dic
+{
+    Q_OBJECT
 
+public:
+    QVBoxLayout *vboxLayout2;
+    QHBoxLayout *horizontalLayout;
+    QLabel *entree_felix;
+    QLineEdit *saisie_felix;
+    QPushButton *felixButton;
+    QPushButton *bDicoLitt;
+    QComboBox *comboGlossaria;
+    QPushButton *AnteButton;
+    QLabel *labelLewis;
+    QPushButton *PostButton;
+    QSpacerItem *horizontalSpacer;
+    QTextBrowser *EditFelix;
+
+    Fen_Dic (QWidget *parent);
+};
+*/
 class fenestra : public QMainWindow, private Ui::MainWindow
 {
     Q_OBJECT
@@ -87,7 +112,8 @@ class fenestra : public QMainWindow, private Ui::MainWindow
     public:
         fenestra (QString url);
         virtual ~fenestra ();
-        void flechis (Tentree * e);
+        Syntaxe * syntaxe;
+        void flechis (Entree * e);
         int editeurCourant ();
         QTextEdit * editeurRes ();
     private:
@@ -97,7 +123,7 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         QActionGroup * grCibles;
         QTranslator * translatorF;
         QTranslator * translatorE;
-        TLexicum * lexicum;
+        Lexicum * lexicum;
         void clearModif ();
         void capsamInLatinum (const QString &fileName);
         bool capsaminDiscum (const QString &fileName);
@@ -117,8 +143,33 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         void deest ();
         QString lang;
         QString ante, post;
+        bool verifMorpho;
+        bool verif_morpho ();
+
+        // Le nécessaire pour la fenêtre supplémentaire de consultation des dicos
+        void init_fen_Dic();
+        QTextBrowser * fen_dic;
+        QWidget * fen_Dic;
+        bool extraDicVisible;
+        Dictionnaire * extraDic;
+        QVBoxLayout * vboxLayout22;
+        QHBoxLayout * horizontalLayout22;
+        QLabel * entree_felix2;
+        QLineEdit * saisie_felix2;
+        QPushButton * felixButton2;
+        QPushButton * bDicoLitt2;
+        QPushButton * AnteButton2;
+        QPushButton * PostButton2;
+        QLabel * labelLewis2;
+        QComboBox * comboGlossaria2;
+        QStringList ldic;
 
     private slots:
+        void oteDiac ();
+        void ampliatioGlossarii ();
+        void verbaCognita(bool vb=false);
+        void lancerServeur(bool run=false);
+        void extra_dico(bool visible=false);
         void auxilium ();
         void decollatino ();
         void calepin ();
@@ -126,13 +177,14 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         void inuenire ();
         void inuenire_denuo ();
         void legere ();
+        void tabulaFormae ();
         void lemmatiseTout (bool alpha=false);
         void alpha ();
         void noua ();
         bool scribere ();
         bool scribereVt ();
         void setCible ();
-        void vide_texte ();
+        void initPhrase (); 
         void change_syntaxe ();
         void change_morpho (bool m);
         void affiche_lien (QUrl url);
@@ -153,6 +205,15 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         void change_page_djvu (int p);
         void clicAnte ();
         void clicPost ();
+
+        void affiche_lien2 (QUrl url);
+        void change_glossarium2 (QString nomDic);
+        void affiche_lemmes_dic2 (QStringList lk, int no=0);
+        void affiche_lemme_saisie2 (bool litt=false);
+        void affiche_lemme_saisie_litt2 ();
+        void change_page_djvu2 (int p);
+        void clicAnte2 ();
+        void clicPost2 ();
     protected:
         bool event (QEvent *event);
         void closeEvent(QCloseEvent *event);

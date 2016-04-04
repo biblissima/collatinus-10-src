@@ -80,16 +80,20 @@ class ListeDic: public QObject
     private:
     QMultiMap<QString, Dictionnaire*> liste;
     Dictionnaire * currens;
+    Dictionnaire * currens2;
 
     public:
     Dictionnaire * dictionnaire_par_nom (QString nom);
     void ajoute (Dictionnaire *d);
     void change_courant (QString nom);
     Dictionnaire * courant ();
-    // page renvoie le code html de la page 
+    void change_courant2 (QString nom);
+    Dictionnaire * courant2 ();
+    // page renvoie le code html de la page
     // du dictionnaire courant 
     // correspondant au lemme l.
 };
+// Revoir cette classe ListeDic : elle ne devrait pas contenir les dicos courants
 
 #endif
 

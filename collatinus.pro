@@ -44,7 +44,7 @@ macx{
 
     # install into app bundle
     # à changer en ressources
-    data.path = Collatinus.app/Contents/MacOS
+    data.path = Collatinus.app/Contents/MacOS/ressources/
     data.files =  ressources/* 
     deploy.depends = install_documentation
     deploy.depends += install
@@ -55,7 +55,7 @@ macx{
     dmg.depends = deploy
 	dmg.commands = ./MacOS/Collatinus.sh
     INSTALLS += documentation
-#    INSTALLS += data
+    INSTALLS += data
     QMAKE_EXTRA_TARGETS += deploy
     QMAKE_EXTRA_TARGETS += dmg
 }

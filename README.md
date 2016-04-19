@@ -1,5 +1,22 @@
 # Collatinus
 
+## Version expérimentale de Collatinus
+
+En cours de développement par Philippe Verkerk, d'après les suggestions de divers utilisateurs (Octave Boczkowski, Jan Bart et Élie Roux).
+
+### Nouveautés
+
+- Extension du lexique par traitement **automatique**, donc **imparfait**, des dictionnaires numériques (un grand merci à Gérard Gréco qui m'a confié son Gaffiot avant sa publication).
+- Possibilité de consulter simultanément deux dictionnaires.
+- Colorisation du texte en fonction d'une liste de mots connus (par les élèves).
+- Indication de l'accentuation et des césures dans un texte.
+
+### Avertissement
+
+Les ressources pour cette version 10.3alpha **ne sont pas** compatibles à 100% avec Collatinus 10.2. On les trouvera dans la branche correspondante du dépôt Github [collatinus-data](https://github.com/biblissima/collatinus-data).
+
+## Présentation
+
 Ce dépôt contient les sources de [Collatinus](http://outils.biblissima.fr/collatinus/), un logiciel libre et gratuit pour la **lemmatisation et l'analyse morphologique de textes latins**.
 
 Collatinus est développé par Yves Ouvrard et Philippe Verkerk.

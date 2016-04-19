@@ -183,20 +183,20 @@ QString AnalyseMorpho::accentue (QString l)
     if ((l == "œ") ||(l == "Œ")) return l+"\u0301";
     if (l == "æ") return "ǽ";
     if (l == "Æ") return "Ǽ";
-    char a = l[0].toLatin1();
+    int a = l[0].unicode();
     switch (a) {
-    case 'a': return "á";
-    case 'e': return "é";
-    case 'i': return "í";
-    case 'o': return "ó";
-    case 'u': return "ú";
-    case 'y': return "ý";
-    case 'A': return "Á";
-    case 'E': return "É";
-    case 'I': return "Í";
-    case 'O': return "Ó";
-    case 'U': return "Ú";
-    case 'Y': return "Ý";
+    case 97 : return "á";
+    case 101 : return "é";
+    case 105 : return "í";
+    case 111 : return "ó";
+    case 117 : return "ú";
+    case 121 : return "ý";
+    case 65 : return "Á";
+    case 69 : return "É";
+    case 73 : return "Í";
+    case 79 : return "Ó";
+    case 85 : return "Ú";
+    case 89 : return "Ý";
         break;
     default:
         return l;

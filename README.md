@@ -10,6 +10,7 @@ En cours de développement par Philippe Verkerk, d'après les suggestions de div
 - Possibilité de consulter simultanément deux dictionnaires.
 - Colorisation du texte en fonction d'une liste de mots connus (par les élèves).
 - Indication de l'accentuation et des césures dans un texte.
+- Activation possible d'un serveur local sur le port 5555
 
 ### Avertissement
 

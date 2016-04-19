@@ -1352,6 +1352,8 @@ void fenestra::exec ()
     if (requete[0] == '-')
     {
         char a = requete[1].toLatin1();
+        QString options = requete.mid(0,requete.indexOf(" "));
+        int optAcc = 7;
         requete = requete.mid(requete.indexOf(" ")+1);
         switch (a)
         {
@@ -1359,7 +1361,9 @@ void fenestra::exec ()
             rep = lexicum->scandeTxt(requete);
             break;
         case 'a':
-            rep = lexicum->scandeTxt(requete,true,false);
+            if ((options.size() > 2) && (options[2].isDigit()))
+                optAcc = options[2].digitValue() & 7;
+            rep = lexicum->scandeTxt(requete,optAcc,false);
             break;
         case 'l':
             rep = lexicum->lemmatiseTxt(requete);

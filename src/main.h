@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QtGui>
 #include <QTextEdit>
+#include <QtNetwork>
 
 #include "lexicum.h" // anciennement libcollatinus. Saucissonné le 27 novembre 2015
 #include "syntaxe.h"
@@ -133,6 +134,8 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         void capsamInLatinum (const QString &fileName);
         bool capsaminDiscum (const QString &fileName);
         bool cautio ();
+        QString repHyphen;
+        QString repVerba;
         QString repertoire;
         QString capsaIn; // nom du fichier chargé
         QString capsaEx; // nom fu fichier enregistré
@@ -169,14 +172,28 @@ class fenestra : public QMainWindow, private Ui::MainWindow
         QComboBox * comboGlossaria2;
         QStringList ldic;
 
+        // Pour les options d'accentuation
+        QWidget * fen_Opt;
+        void init_fen_Opt();
+        int lire_options();
+        QGroupBox *groupBox;
+        QRadioButton *radio1;
+        QRadioButton *radio2;
+        QRadioButton *radio3;
+        QCheckBox *checkBox;
+        QVBoxLayout *vbox;
+
+
     signals:
         void donneesRecues (QString texte);
 
     private slots:
+        void optionsAccent (bool vis);
         void connexion ();
         void exec ();
         void oteDiac ();
         void ampliatioGlossarii ();
+        void lireFichierHyphen ();
         void verbaCognita(bool vb=false);
         void lancerServeur(bool run=false);
         void extra_dico(bool visible=false);

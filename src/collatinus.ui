@@ -394,6 +394,8 @@
     <addaction name="actionTabula_Formae"/>
     <addaction name="actionVerba_cognita"/>
     <addaction name="separator"/>
+    <addaction name="actionLire_fichier_hyphen"/>
+    <addaction name="separator"/>
     <addaction name="action_Exire"/>
    </widget>
    <widget class="QMenu" name="menu_Editio">
@@ -442,6 +444,7 @@
     <addaction name="actionMaj"/>
     <addaction name="actionMorphologia_in_bullis"/>
     <addaction name="actionMorphologia_in_lemmatibus"/>
+    <addaction name="actionOptiones_accentus"/>
     <addaction name="separator"/>
     <addaction name="action_ampliatio_glossarii"/>
     <addaction name="separator"/>
@@ -904,6 +907,19 @@
   <action name="actionOter_les_accents">
    <property name="text">
     <string>Oter les accents</string>
+   </property>
+  </action>
+  <action name="actionLire_fichier_hyphen">
+   <property name="text">
+    <string>Lire fichier hyphen</string>
+   </property>
+  </action>
+  <action name="actionOptiones_accentus">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Optiones accentus</string>
    </property>
   </action>
  </widget>

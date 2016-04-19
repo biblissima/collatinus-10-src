@@ -46,7 +46,7 @@ private:
     QString dq; // nécessaire pour le superlatif de l'adverbe
     QString suffixe; // le suffixe sera conservé ici
     bool db_i;
-    QString ajoutSuff (QString fq, bool accent);
+    QString ajoutSuff (QString fq, int accent);
     static QString transforme (QString k);
     static QString accentue (QString l);
 
@@ -71,6 +71,7 @@ public:
     QString static const consonnes;
     QString static const voyelles;
     QString static const longues;
+    QChar static const separSyll;
 
     Entree * entree ();
     void setSuff (QString s); // Pour les enclitiques, je dois pouvoir ajouter un suffixe après coup
@@ -78,7 +79,7 @@ public:
     QString getD (); // pour récupérer la désinence
     void setQ (QString nq); // pour changer le radical;
     QString getQ (); // pour récupérer le radical
-    QString getForm (bool accent = false); // Le collage radical+désinence+suffixe se fera ici
+    QString getForm (int accent = 0); // Le collage radical+désinence+suffixe se fera ici
     void setUpper ();
     void setLower ();
     Traits * getTraits ();

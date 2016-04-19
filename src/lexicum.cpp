@@ -357,11 +357,12 @@ namespace Ch
 /*******************
 ** classe lexique **
 ********************/
-Lexicum::Lexicum (QString qsuia, QObject *parent) :
+Lexicum::Lexicum (QString rsrcDirName, QObject *parent) :
     QObject(parent)
 {
     // lecture du fichier des modèles de radicaux mdlrad.la
-//    QString fichier = qApp->applicationDirPath () + "/ressources/mdlrad.la";
+    if (rsrcDirName.endsWith("/")) qsuia = rsrcDirName;
+    else qsuia = rsrcDirName + "/";
     QString fichier = qsuia + "mdlrad.la";
     QFile fmr (fichier);
     fmr.open (QIODevice::ReadOnly|QIODevice::Text);
@@ -385,10 +386,9 @@ Lexicum::Lexicum (QString qsuia, QObject *parent) :
     lemmataLege ();
 
     // fichier de désinences desin.la
-//    fichier = qApp->applicationDirPath () + "/ressources/desin.la";
-//    fichier = qsuia + "desin.la";
-//    QFile fDes (fichier);
-    QFile fDes ("donnees:desin.la");
+    fichier = qsuia + "desin.la";
+    QFile fDes (fichier);
+//    QFile fDes ("donnees:desin.la");
     // 23 novembre 2015
     // Je définis un alias avec setSearchFPaths dans main.cpp
     // Ph.
@@ -406,7 +406,7 @@ Lexicum::Lexicum (QString qsuia, QObject *parent) :
     fDes.close ();
 
     // fichier des formes irrégulières irregs.la
-    fichier = qApp->applicationDirPath () + "/ressources/irregs.la";
+    fichier = qsuia + "irregs.la";
     QFile fIrr (fichier);
     fIrr.open (QIODevice::ReadOnly|QIODevice::Text);
     QTextStream fluxI (&fIrr);
@@ -441,7 +441,7 @@ Lexicum::Lexicum (QString qsuia, QObject *parent) :
     pronominaLege ();
 
     // règles de quantité
-    QFile fregles (qApp->applicationDirPath () +"/ressources/regles.txt");
+    QFile fregles (qsuia +"regles.txt");
     fregles.open (QFile::ReadOnly);
     QTextStream fle (&fregles);
     fle.setCodec ("UTF-8");
@@ -486,7 +486,7 @@ Lexicum::~Lexicum ()
 void Lexicum::traductionesLege(QString nomen)
 {
     // lecture des fichiers de traduction
-    QDir repertoire = QDir (qApp->applicationDirPath () +"/ressources/", nomen+".*");
+    QDir repertoire = QDir (qsuia, nomen+".*");
     QStringList lemmata = repertoire.entryList ();
     lemmata.removeOne (nomen+".la");
     foreach (QString lem, lemmata)
@@ -560,7 +560,7 @@ QMap<QString,QString> Lexicum::cible ()
 void Lexicum::lemmataLege (QString nomen)
 {
     // lit un lemmata.[lang]
-    QString fichier = qApp->applicationDirPath () +"/ressources/"+nomen+".la";
+    QString fichier = qsuia + nomen + ".la";
     QFile Capsa (fichier);
     Capsa.open (QIODevice::ReadOnly|QIODevice::Text);
     QTextStream flux (&Capsa);
@@ -620,7 +620,7 @@ void Lexicum::lemmataLege (QString nomen)
  */
 void Lexicum::pronominaLege (QString nomen)
 {
-    QFile f (qApp->applicationDirPath () +"/ressources/"+nomen+".la");
+    QFile f (qsuia + nomen + ".la");
     f.open (QIODevice::ReadOnly|QIODevice::Text);
     QTextStream flux (&f);
     flux.setCodec("UTF-8");
@@ -713,7 +713,7 @@ void Lexicum::pronominaLege (QString nomen)
 
 void Lexicum::linguamLege (QString lang, QString nomen)
 {
-    QString fichier = qApp->applicationDirPath () +"/ressources/"+nomen+"."+lang;
+    QString fichier = qsuia + nomen + "." + lang;
     QFile Capsa (fichier);
     Capsa.open (QIODevice::ReadOnly|QIODevice::Text);
     QTextStream flux (&Capsa);
@@ -1106,7 +1106,7 @@ ListeAnalyses Lexicum::corAnalyses (QString forme)
 //                ++ilr;
             }
         }
-    } // fin de boucle de recherce r.d
+    } // fin de boucle de recherche r.d
     foreach (Irreg * irr, irregulares.values (forme))
     {
         e = irr->entree ();
@@ -1161,7 +1161,7 @@ QStringList Lexicum::lemmatiseM (QString f, bool mm, bool deb_phr)
     return sortie;
 }
 
-void Lexicum::verbaCognita(QString repertoire,bool vb)
+void Lexicum::verbaCognita(QString fichier,bool vb)
 {
     if (vb)
     {
@@ -1171,16 +1171,19 @@ void Lexicum::verbaCognita(QString repertoire,bool vb)
         couleurs << "#00A000"; // vert
         couleurs << "#000000"; // noir
         couleurs << "#A00000"; // rouge
-        QString fihier = QFileDialog::getOpenFileName(0, "Verba cognita", repertoire);
-        if (!fihier.isEmpty())
+        if (!fichier.isEmpty())
         {
-            QFile file(fihier);
+            QFile file(fichier);
             if (!file.open(QFile::ReadOnly | QFile::Text))
             {
-                QMessageBox::warning(0, tr("Collatinus"),
+                nbErreurs += 1;
+                msgErreur.append(tr("Capsam legere nequeo %1:\n%2.\n")
+                                 .arg(fichier)
+                                 .arg(file.errorString()));
+/*                QMessageBox::warning(0, tr("Collatinus"),
                                      tr("Capsam legere nequeo %1:\n%2.")
-                                     .arg(fihier)
-                                     .arg(file.errorString()));
+                                     .arg(fichier)
+                                     .arg(file.errorString())); */
                 return;
             }
 
@@ -1262,7 +1265,7 @@ QString Lexicum::lemmatiseTxt (QString &txt, bool alpha, bool cumVocibus, bool c
                     QString lem = uox;
                     lem.replace("j","i");
                     lem.replace("J","I");
-                    qDebug() << lem;
+                    // qDebug() << lem;
                     if (hLem.contains(lem))
                     {
                         if (colPrec != 0)
@@ -2037,7 +2040,7 @@ QString Lexicum::flechis(QString clef)
 
 // scansion
 
-QStringList Lexicum::formeq (QString forme, bool *nonTrouve, bool deb_phr, bool accent)
+QStringList Lexicum::formeq (QString forme, bool *nonTrouve, bool deb_phr, int accent)
 {
     QStringList lforme;
     *nonTrouve = true;
@@ -2169,7 +2172,7 @@ QStringList Lexicum::cherchePieds (int nbr, QString ligne, int i, bool pentam)
 }
 
 // écrit le texte scandé.
-QString Lexicum::scandeTxt (QString texte, bool accent, bool stats)
+QString Lexicum::scandeTxt (QString texte, int accent, bool stats)
 {
     QString schemaMetric;
     QMap <QString, int> freqMetric;
@@ -2656,4 +2659,80 @@ QStringList Lexicum::frequences (QString txt)
     sortie.insert (4, "c = nombre probable de formes ambigu\u00ebs rattachées à ce lemme<br/>\n");
     sortie.insert (5, "------------<br/>\n");
     return sortie;
+}
+
+void Lexicum::lireHyphen(QString fichierHyphen)
+{
+    foreach (Entree * e, entrees.values()) e->setHyphen("");
+    if (!fichierHyphen.isEmpty())
+    {
+        QFile Capsa (fichierHyphen);
+        if (!Capsa.open (QIODevice::ReadOnly|QIODevice::Text))
+        {
+            nbErreurs += 1;
+            msgErreur.append(tr("Capsam legere nequeo %1:\n%2.\n")
+                             .arg(fichierHyphen)
+                             .arg(Capsa.errorString()));
+/*            QMessageBox::warning(0, tr("Collatinus"),
+                                 tr("Capsam legere nequeo %1:\n%2.")
+                                 .arg(fichierHyphen)
+                                 .arg(Capsa.errorString())); */
+            return;
+        }
+
+        QTextStream flux (&Capsa);
+        flux.setCodec("UTF-8");
+        QString linea;
+        while (!flux.atEnd ())
+        {
+            linea = flux.readLine ();
+            if (linea.isEmpty () || linea[0] == '!') continue;
+            QStringList ecl = linea.split ('|');
+            if (ecl.count () != 2)
+            {
+    #ifdef DEBOG
+                qDebug () << "ligne mal formée" << linea;
+    #endif
+                continue;
+            }
+            Entree * e = entree (Ch::jviu (ecl[0]));
+            if (e!=NULL)
+                e->setHyphen (ecl[1]);
+    #ifdef DEBOG
+            else qDebug () << linea << "erreur lireHyphen";
+    #endif
+        }
+        Capsa.close ();
+
+    }
+}
+
+/**
+ * Gestion des erreurs
+ * */
+
+void Lexicum::clearErrors()
+{
+    nbErreurs = 0;
+    msgErreur = "";
+}
+
+int Lexicum::numberOfErrors()
+{
+    return nbErreurs;
+}
+
+QString Lexicum::errorMessage()
+{
+    return msgErreur;
+}
+
+void Lexicum::setOptionComm(int oc)
+{
+    optionCommune = oc;
+}
+
+void Lexicum::setOptionHyphen(bool oh)
+{
+    cesure = oh;
 }

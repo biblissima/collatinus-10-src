@@ -29,7 +29,7 @@
 
 #include <QObject>
 #include <QString>
-#include <QTextStream>
+//#include <QTextStream>
 
 #include "entree.h"
 

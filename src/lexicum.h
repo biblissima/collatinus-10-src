@@ -34,20 +34,20 @@
 #include <QMultiMap>
 #include <QPair>
 #include <QHash>
-#include <iostream>
-#include <fstream>
-#include <sstream>
+//#include <iostream>
+//#include <fstream>
+//#include <sstream>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
 #include <QTextCodec>
-#include <QApplication>
+//#include <QApplication>
 
-#include <QtWidgets>
-#include <QtNetwork>
-#include <QClipboard>
+//#include <QtWidgets>
+//#include <QtNetwork>
+//#include <QClipboard>
 
-#include <QMessageBox>
+//#include <QMessageBox>
 // pour déboguer
 #include <QDebug>
 // pour l'affichage console
@@ -178,42 +178,61 @@ private:
         ListeAnalyses lanalysesE (QString forme); // enclitiques
         ListeAnalyses lanalysesA (QString forme); // assimilations
         ListeAnalyses corAnalyses (QString forme); // cœur du moteur d'analyse
-        QString ListeFlechie (Entree* e, QString clef); // retourne la liste des formes fléchies
 
-    public:
-        Lexicum (QString qsuia, QObject *parent = 0);
-        void verbaCognita(QString repertoire, bool vb=false);
-        void ampliatio ();
-        virtual ~Lexicum ();
-        QMap <QString, QString> cible ();
-        void changeMajPert (bool m);
-        Entree *renvoi (Entree *e);  // renvoi d'entrée si la déf. commence par cf.
-        Entree * entree (QString k);
-        void dicLinguam (QString lang);
-        QString lang ();
-        QString ambrogio (Entree * e);
-        void deleteAnalyses (ListeAnalyses la);
-        QString radical (QString r);
-        // QString assimile (QString f);
-        // QString analyses (QString f);
-        // QStringList ajoute (QString mot, QStringList liste);
-        void lajoute (QString l, ListeAnalyses& la, AnalyseMorpho * am);
-        ListeAnalyses lanalyses (QString forme, bool deb_phr=false);
-        QStringList lemmatiseM (QString f, bool mm=true, bool deb_phr = false); // analyse morphologique, début de phrase
-        QString lemmatiseTxt (QString &txt, bool alpha=0, bool cumVocibus = false, bool cumMorpho = false);
-        QString par_position (QString f);
         QStringList synthA (Entree* e, int c, int n, int g, int d);
         QStringList synthPart (Entree* e, int c, int g, int n, int t, int v);
         QStringList synthN (Entree *e, int c, int n);
         QStringList synthP (Entree* e, int c, int n, int g);
         QStringList synthV (Entree* e, int p, int n, int t, int m, int v);
-        QString flechis (Entree* e);
-        QString flechis (QString clef); // Cherche la clef parmi les entrées et retourne la liste des formes fléchies
-        QStringList formeq (QString forme, bool *nonTrouve, bool deb_phr=true, bool accent=false);
-        QString scandeTxt (QString texte, bool accent = false, bool stats = false);
+        QString ListeFlechie (Entree* e, QString clef); // retourne la liste des formes fléchies
+        Entree *renvoi (Entree *e);  // renvoi d'entrée si la déf. commence par cf.
+        QString radical (QString r);
+        void lajoute (QString l, ListeAnalyses& la, AnalyseMorpho * am);
+
+        int nbErreurs;
+        QString msgErreur;
+        QString qsuia; // Le nom du répertoire de ressources
+        int optionCommune; // Pour la gestion des voyelles communes en pénultième position
+        bool cesure; // Pour indiquer la séparation des syllabes.
+
+    public:
+        Lexicum (QString rsrcDirName, QObject *parent = 0);
+        virtual ~Lexicum ();
+
+        QMap <QString, QString> cible ();
+        void changeMajPert (bool m);
+        void dicLinguam (QString lang);
+        QString lang ();
+        QString ambrogio (Entree * e);
+        void setOptionComm (int oc);
+        void setOptionHyphen (bool oh);
+
+        // Les fonctions essentielles
+        Entree * entree (QString k);
+        ListeAnalyses lanalyses (QString forme, bool deb_phr=false);
+        void deleteAnalyses (ListeAnalyses la);
+        QStringList lemmatiseM (QString f, bool mm=true, bool deb_phr = false); // analyse morphologique, début de phrase
+        QString lemmatiseTxt (QString &txt, bool alpha=0, bool cumVocibus = false, bool cumMorpho = false);
+        QString par_position (QString f);
+        QStringList formeq (QString forme, bool *nonTrouve, bool deb_phr=true, int accent=0);
+        QString scandeTxt (QString texte, int accent = 0, bool stats = false);
         QStringList formeXML (QString forme, bool *nonTrouve, bool deb_phr);
         QString txt2XML (QString texte);
         QStringList frequences (QString txt);
+
+        // La flexion
+        QString flechis (Entree* e);
+        QString flechis (QString clef); // Cherche la clef parmi les entrées et retourne la liste des formes fléchies
+
+        // Les nouvelles fonctions
+        void verbaCognita(QString fichier, bool vb=false); // Coloriser le texte avec les mots connus
+        void ampliatio (); // Charger l'extension du lexique
+        void lireHyphen (QString fichierHyphen); // Lire un fichier de césures étymologiques (non-phonétiques)
+
+        // Un gestionnaire d'erreurs rudimentaire
+        int numberOfErrors (); // nombre d'erreurs rencontrées
+        QString errorMessage (); // Message d'erreur
+        void clearErrors (); // Remise à zéro des erreurs
 };
 
 #endif

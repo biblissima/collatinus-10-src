@@ -88,8 +88,8 @@ QString Radix::grquant ()
 
 QString Radix::doc ()
 {
-    QString sortie;
-    QTextStream (&sortie)
-        << "rad. " << num << " de " << " (" << Entree::modeles[mo] << ")";
-    return sortie;
+    QString sortie = "rad. %1 of (%2)";
+//    QTextStream (&sortie)
+  //      << "rad. " << num << " de " << " (" << Entree::modeles[mo] << ")";
+    return sortie.arg(num).arg(Entree::modeles[mo]);
 }

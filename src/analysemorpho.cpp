@@ -77,6 +77,7 @@ AnalyseMorpho::~AnalyseMorpho ()
 const QString AnalyseMorpho::consonnes = "bcdfgjklmnpqrstvxz";
 const QString AnalyseMorpho::voyelles  = QString::fromUtf8 ("a\u0101\u0103e\u0113\u0115i\u012b\u012do\u014d\u014fu\u016b\u016dy\u0233\u045e");
 const QString AnalyseMorpho::longues  = QString::fromUtf8 ("\\x0101\\x0113\\x012b\\x014d\\x016b\u045e");
+const QChar AnalyseMorpho::separSyll = 0x02CC;
 
 const QStringList AnalyseMorpho::assimAnteq = QStringList ()
     << "\u0101dc"<<"\u0101df"<<"\u0101dg"<<"\u0101dl"<<"\u0101dp"<<"\u0101dq"<<"\u0101dr"
@@ -179,29 +180,23 @@ QString AnalyseMorpho::transforme (QString k)
 
 QString AnalyseMorpho::accentue (QString l)
 {
-    if ((l == "æ") ||(l == "Æ") ||(l == "œ") ||(l == "Œ") || (l == "y") || (l == "Y")) return l+"\u0301";
+    if ((l == "œ") ||(l == "Œ")) return l+"\u0301";
+    if (l == "æ") return "ǽ";
+    if (l == "Æ") return "Ǽ";
     char a = l[0].toLatin1();
     switch (a) {
-    case 'a':
-        return "á";
-    case 'e':
-        return "é";
-    case 'i':
-        return "í";
-    case 'o':
-        return "ó";
-    case 'u':
-        return "ú";
-    case 'A':
-        return "Á";
-    case 'E':
-        return "É";
-    case 'I':
-        return "Í";
-    case 'O':
-        return "Ó";
-    case 'U':
-        return "Ú";
+    case 'a': return "á";
+    case 'e': return "é";
+    case 'i': return "í";
+    case 'o': return "ó";
+    case 'u': return "ú";
+    case 'y': return "ý";
+    case 'A': return "Á";
+    case 'E': return "É";
+    case 'I': return "Í";
+    case 'O': return "Ó";
+    case 'U': return "Ú";
+    case 'Y': return "Ý";
         break;
     default:
         return l;
@@ -209,9 +204,16 @@ QString AnalyseMorpho::accentue (QString l)
     }
 }
 
-QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
+QString AnalyseMorpho::ajoutSuff(QString fq, int accent)
 {
-    if (accent)
+    bool cesure = false;
+    bool sansAccent = false;
+    if (accent > 3)
+    {
+        cesure = true;
+        accent -= 4;
+    }
+    if (accent>0)
     {
         QString signes = "+-*";
         fq = transforme(fq);
@@ -225,17 +227,20 @@ QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
                 while (!signes.contains(fq[i])) i-=1;
                 i-=1;
                 while (!signes.contains(fq[i])) i-=1;
-//                if (fq[i] != '+')
-                // ou
-                if (fq[i] == '-')
+                sansAccent = (fq[i] == '*') && (accent == 3);
+                // La pénultième est commune et je la considère comme ambiguë = pas d'accent.
+                if ((fq[i] == '-') || ((fq[i] == '*') && (accent == 2)))
                 {
                     // Remonter à l'antépénultième
                     i-=1;
                     while (!signes.contains(fq[i])) i-=1;
                 }
-                if (i>1)
-                    fq = fq.mid(0, i-1) + accentue(fq.mid(i-1,1)) + fq.mid(i);
-                else fq = accentue(fq.mid(i-1,1)) + fq.mid(i);
+                if (!sansAccent)
+                {
+                    if (i>1)
+                        fq = fq.mid(0, i-1) + accentue(fq.mid(i-1,1)) + fq.mid(i);
+                    else fq = accentue(fq.mid(i-1,1)) + fq.mid(i);
+                }
             }
         }
         else
@@ -254,7 +259,7 @@ QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
         }
         // L'entier i pointe sur la longueur de la voyelle accentuée, sauf si j'ai ajouté un \u0301.
         // Si je veux marquer la syllabe accentuée en gras, c'est ici !
-        if (l>1)
+        if ((l>1) && cesure)
         {
             // Il y a au moins deux syllabes que je veux séparer
             int j = fq.size() -1;
@@ -265,18 +270,18 @@ QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
             while (j>0)
             {
                 // la césure doit tomber quelque part entre j et k
-                if (k == j+2) fq.insert(j,"ˌ"); // Il n'y a que la voyelle (et une quantité)
+                if (k == j+2) fq.insert(j,separSyll); // Il n'y a que la voyelle (et une quantité)
                 else
                 {
                     int nbCons = 0;
                     for (int n = j+1; n < k-1; n++)
                         if (consonnes.contains(fq[n]) || (fq[n]=='h')) nbCons +=1;
                     // J'ai le nombre de consonnes
-                    if (nbCons == 0) fq.insert(k-1,"ˌ");
+                    if (nbCons == 0) fq.insert(k-1,separSyll);
                     else
                     {
                         while (!consonnes.contains(fq[k]) && (fq[k]!='h')) k-=1;
-                        if (nbCons == 1) fq.insert(k,"ˌ");
+                        if (nbCons == 1) fq.insert(k,separSyll);
                         else
                         {
                             // c'est plus compliqué car j'ai au moins deux consonnes...
@@ -287,16 +292,62 @@ QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
                             remonte = ((fq[k]=='c') && (fq[k-1]=='s') &&
                                     (fq[k+1]!='a') && (fq[k+1]!='o') && (fq[k+1]!='u') && (fq[k+1]!='h'));
                             remonte = remonte || ((fq[k]=='p') && (fq[k-1]=='s'));
-                            remonte = remonte || ((fq[k]=='t') && (fq[k-1]=='s'));
+                            // remonte = remonte || ((fq[k]=='t') && (fq[k-1]=='s'));
                             remonte = remonte || ((fq[k]=='n') && (fq[k-1]=='g'));
                             if (remonte) k-=1;
-                            fq.insert(k,"ˌ");
+                            fq.insert(k,separSyll);
                         }
                     }
                 }
                 k = j;
                 j -= 2;
                 while (!signes.contains((fq[j])) && (j>0)) j-=1;
+            }
+            // J'ai placé les césures en suivant les règles établies.
+            // Mais je peux avoir des césures étymologiques qui vont à l'encontre des règles "normales".
+            QString l_etym = e->getHyphen();
+            if (!l_etym.isEmpty()) foreach (QString etym, l_etym.split(','))
+            {
+                QString fq1 = fq;
+                // Je vais parcourir le mot pour vérifier que ça colle
+                int i = 0;
+                int j = 0;
+                int changement = 0;
+                bool OK=true;
+                while ((i<etym.size()) && (j<fq.size()) && OK)
+                {
+                    if ((etym[i]==fq[j]) || (fq.mid(j,1)==accentue(etym.mid(i,1))) || ((etym[i] == '-') && (fq[j] == separSyll)))
+                    {
+                        // Les lettres ou les césures correspondent
+                        i+=1;
+                        j+=1;
+                    }
+                    else if (signes.contains(fq[j]) || (fq[j] == 0x0301)) j+=1; // C'est une quantité
+                    else if ((etym[i] != '-') && (fq[j] != separSyll)) OK = false; // Les lettres ne correspondent pas.
+                    else
+                    {
+                        // la césure est mal placée.
+                        if (etym[i] == '-')
+                        {
+                            fq.insert(j,"ˌ");
+                            changement += 1;
+                            j+=1;
+                            i+=1;
+                        }
+                        else
+                        {
+                            fq.remove(j,1);
+                            changement -= 1 ;
+                        }
+                    }
+                }
+                if (changement == 1)
+                {
+                    // La césure étymologique est tombé avant la césure normale...
+                    while (fq[j] != separSyll) j+=1;
+                    fq.remove(j,1);
+                }
+                if (!OK) fq = fq1; // etym ne correspondait pas aux premières lettres de fq.
             }
         }
         fq.remove("+");
@@ -310,7 +361,7 @@ QString AnalyseMorpho::ajoutSuff(QString fq, bool accent)
     return allonge (fq) + suffixe;
 }
 
-QString AnalyseMorpho::getForm (bool accent)
+QString AnalyseMorpho::getForm (int accent)
 {
     QString fq = q;
     if (dq.isEmpty ()) // Vient de la liste des irréguliers

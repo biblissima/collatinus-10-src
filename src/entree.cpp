@@ -73,6 +73,7 @@ Entree::Entree (QString linea, QObject *parent) :
             cf = Ch::deramise (indMorph.mid (pos + 4));
         }
         else cf = "";
+        hyphen = "";
     }
 #ifdef DEBOG
     if (!erreur.isEmpty ())
@@ -781,28 +782,15 @@ QString Entree::ambrogio ()
 
 QString Entree::definition (QString l)
 {
-//    if (trad[l] != NULL)
+    QString retour = "<strong>%1</strong>, %2 : %3";
+    retour = retour.arg(kq).arg(indMorph);
     if (!trad[l].isEmpty())
-        return QString ("<strong>%1</strong>, %2 : %3")
-            .arg (kq)
-            .arg (indMorph)
-            .arg (trad[l]);
-//    if (trad["fr"] != NULL)
+        return retour.arg (trad[l]);
     if (!trad["fr"].isEmpty())
-        return QString ("<strong>%1</strong>, %2 : %3")
-            .arg (kq)
-            .arg (indMorph)
-                .arg ("<i>en Français</i> : " + trad["fr"]);
-//    if (trad["uk"] != NULL)
+        return retour.arg ("<i>en Français</i> : " + trad["fr"]);
     if (!trad["uk"].isEmpty())
-        return QString ("<strong>%1</strong>, %2 : %3")
-            .arg (kq)
-            .arg (indMorph)
-                .arg ("<i>in English</i> : " + trad["uk"]);
-        return QString ("<strong>%1</strong>, %2 : %3")
-            .arg (kq)
-            .arg (indMorph)
-            .arg ("<i>Non traduit</i>");
+        return retour.arg ("<i>in English</i> : " + trad["uk"]);
+    return retour.arg ("<i>Non traduit</i>");
 }
 
 QString Entree::ote2 (QString k, int &h)
@@ -832,3 +820,14 @@ QString Entree::getCf ()
 {
     return cf;
 }
+
+void Entree::setHyphen(QString h)
+{
+    hyphen = h;
+}
+
+QString Entree::getHyphen()
+{
+    return hyphen;
+}
+

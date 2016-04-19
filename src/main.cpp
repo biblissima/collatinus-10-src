@@ -428,6 +428,8 @@ void fenestra::ecris_prefs ()
     settings.beginGroup ("fichiers");
     settings.setValue ("texte", dernierT);
     settings.setValue ("repertoire", repertoire);
+    settings.setValue ("repHyphen", repHyphen);
+    settings.setValue ("repVerba", repVerba);
     settings.endGroup();
     settings.beginGroup ("lemmatisation");
     settings.setValue ("syntaxis", syntaxis);
@@ -463,6 +465,10 @@ void fenestra::lis_prefs (QString url)
     nomen.replace ("_Q", "");
     nomen.replace ("_L", "");
     repertoire = settings.value ("repertoire").toString ();
+    repHyphen = settings.value ("repHyphen").toString ();
+    if (repHyphen.isEmpty()) repHyphen = qsuia;
+    repVerba = settings.value ("repVerba").toString ();
+    if (repVerba.isEmpty()) repVerba = "~";
     settings.endGroup();
 
     settings.beginGroup ("lemmatisation");
@@ -847,13 +853,23 @@ void fenestra::noua ()
      }
 }
 
+void fenestra::lireFichierHyphen()
+{
+    QString ficIn = QFileDialog::getOpenFileName(this, "Capsam legere", repHyphen+"/hyphen.la");
+    if (!ficIn.isEmpty()) repHyphen = QFileInfo (ficIn).absolutePath ();
+    lexicum->clearErrors();
+    lexicum->lireHyphen(ficIn);
+    if (lexicum->numberOfErrors()>0)
+        QMessageBox::warning(0, tr("Collatinus"),lexicum->errorMessage());
+}
+
 void fenestra::tabulaFormae()
 {
     capsaIn = QFileDialog::getOpenFileName(this, "Capsam legere", repertoire);
     if (!capsaIn.isEmpty())
     {
         nomen = QFileInfo (capsaIn).baseName ();
-        repertoire = QDir (capsaIn).absolutePath ();
+        repertoire = QFileInfo (capsaIn).absolutePath ();
         QFile file(capsaIn);
         if (!file.open(QFile::ReadOnly | QFile::Text))
         {
@@ -872,7 +888,7 @@ void fenestra::tabulaFormae()
             QMessageBox::warning(this, tr("Collatinus"),
                                  tr("Capsam nequeo scribere %1:\n%2.")
                                  .arg("tabula.csv")
-                                 .arg(file.errorString()));
+                                 .arg(fout.errorString()));
             return;
         }
         if (!ferr.open(QFile::WriteOnly | QFile::Text))
@@ -880,7 +896,7 @@ void fenestra::tabulaFormae()
             QMessageBox::warning(this, tr("Collatinus"),
                                  tr("Capsam nequeo scribere %1:\n%2.")
                                  .arg("erreurs.txt")
-                                 .arg(file.errorString()));
+                                 .arg(ferr.errorString()));
             return;
         }
         QTextStream out(&fout);
@@ -903,7 +919,10 @@ void fenestra::tabulaFormae()
 
 void fenestra::verbaCognita(bool vb)
 {
-    lexicum->verbaCognita(repertoire,vb);
+    QString fichier;
+    if (vb) fichier = QFileDialog::getOpenFileName(this, "Verba cognita", repVerba);
+    if (!fichier.isEmpty()) repVerba = QFileInfo (fichier).absolutePath ();
+    lexicum->verbaCognita(fichier,vb);
 }
 
 void fenestra::legere ()
@@ -917,7 +936,7 @@ void fenestra::legere ()
             nomen = QFileInfo (capsaIn).baseName ();
             nomen.replace ("_Q", "");
             nomen.replace ("_L", "");
-            repertoire = QDir (capsaIn).absolutePath ();
+            repertoire = QFileInfo (capsaIn).absolutePath ();
             clearModif ();
             dernierT = capsaIn;
         }
@@ -953,6 +972,7 @@ void fenestra::closeEvent(QCloseEvent *event)
     }
     if (httpWin != NULL) httpWin->close ();
     if (fen_Dic != NULL) fen_Dic->close ();
+    if (fen_Opt != NULL) fen_Opt->close ();
 }
 
 bool fenestra::verif_morpho ()
@@ -1008,7 +1028,9 @@ void fenestra::lemmatiseTout (bool alpha)
     if (ci == 2)
     {
         EditQuantites->clear ();
-        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText (), alpha, false));
+        int accent=0;
+        if (alpha) accent = lire_options();
+        EditQuantites->insertHtml (lexicum->scandeTxt (EditLatin->toPlainText (), accent, false));
     }
 }
 
@@ -1386,9 +1408,13 @@ void fenestra::extra_dico(bool visible)
         fen_Dic->show();
         fen_Dic->setWindowTitle("Collatinus : " + listeD.courant2 ()->nom());
     }
+    else if (fen_Dic->isVisible()) fen_Dic->hide();
     else
     {
-        fen_Dic->hide();
+        actionExtra_dico->setChecked(true);
+        extraDicVisible = true;
+        fen_Dic->show();
+        fen_Dic->setWindowTitle("Collatinus : " + listeD.courant2 ()->nom());
     }
 }
 
@@ -1705,8 +1731,64 @@ QString fenestra::langInterf ()
     return "la";
 }
 
+void fenestra::init_fen_Opt()
+{
+    fen_Opt->setWindowTitle(tr("Optiones accentus"));
+    fen_Opt->resize(320, 120);
+    groupBox = new QGroupBox(tr("Accentuer les mots en considérant \nune voyelle commune comme :"),fen_Opt);
+    groupBox->setCheckable(true);
+    groupBox->setChecked(false);
+    radio1 = new QRadioButton(tr("longue"));
+    radio2 = new QRadioButton(tr("brève"));
+    radio3 = new QRadioButton(tr("ambiguë"));
+    radio1->setChecked(true);
+    checkBox = new QCheckBox(tr("Marquer la séparation entre les syllabes. "));
+    checkBox->setChecked(true);
+    vbox = new QVBoxLayout;
+    vbox->addWidget(radio1);
+    vbox->addWidget(radio2);
+    vbox->addWidget(radio3);
+    vbox->addWidget(checkBox);
+    vbox->addStretch(1);
+    groupBox->setLayout(vbox);
+
+}
+
+int fenestra::lire_options()
+{
+    if (fen_Opt == NULL) return 7;
+    if (!groupBox->isChecked()) return 0;
+    int retour = 0;
+    if (checkBox->isChecked()) retour = 4;
+    if (radio1->isChecked()) retour += 1;
+    if (radio2->isChecked()) retour += 2;
+    if (radio3->isChecked()) retour += 3;
+    return retour;
+}
+
+void fenestra::optionsAccent(bool vis)
+{
+//    FenetreOptions *fen_opt = new FenetreOptions(this);
+//    fen_opt->show();
+    if (fen_Opt == NULL)
+    {
+        fen_Opt = new QWidget(0);
+        init_fen_Opt();
+
+    }
+    if (vis) fen_Opt->show();
+    else if (fen_Opt->isVisible()) fen_Opt->hide();
+    else
+    {
+        fen_Opt->show();
+        actionOptiones_accentus->setChecked(true);
+    }
+}
+
 void fenestra::createActions ()
 {
+    connect (actionOptiones_accentus, SIGNAL (toggled (bool)), this, SLOT (optionsAccent(bool)));
+    connect (actionLire_fichier_hyphen, SIGNAL (triggered ()), this, SLOT (lireFichierHyphen()));
     connect (actionOter_les_accents, SIGNAL (triggered ()), this, SLOT (oteDiac()));
     connect(action_ampliatio_glossarii, SIGNAL(triggered()), this, SLOT(ampliatioGlossarii()));
     connect (actionTabula_Formae, SIGNAL (triggered ()), this, SLOT (tabulaFormae ()));

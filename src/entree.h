@@ -70,6 +70,8 @@ private:
     void init_radicaux (QStringList eclats);
     void init_quantites ();
 
+    QString hyphen; // Pour les césures étymologies
+
 public:
 //    explicit Entree(QObject *parent = 0);
 //    Entree (QString linea, QObject *parent=0);
@@ -105,6 +107,9 @@ public:
     bool n_a_pas_trad ();
     QStringList static const modeles ;
     QStringList static const mdlGrecs ;
+
+    QString getHyphen ();
+    void setHyphen (QString h);
 
 
 signals:

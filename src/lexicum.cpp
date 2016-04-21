@@ -873,7 +873,8 @@ void Lexicum::lajoute (QString l, ListeAnalyses& la, AnalyseMorpho * am)
 
 ListeAnalyses Lexicum::lanalyses (QString forme, bool deb_phr)
 {
-    if ((forme.at (0) == 'V') && !(forme.contains ("v")))
+    if (forme.size() == 0) return lanalysesE (forme);
+    if ((forme.at (0) == 'V') && !(forme.contains ('v')))
         forme[0] = 'U';
     ListeAnalyses la = lanalysesE (forme); // passage direct à la détection d'enclitiques
     if (MajPert && !deb_phr && !la.isEmpty()) return la;

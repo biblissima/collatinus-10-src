@@ -394,6 +394,7 @@ fenestra::fenestra (QString url)
     lis_prefs (url);
     httpWin = NULL;
     fen_Dic = NULL;
+    fen_Opt = NULL;
     extraDicVisible = false;
 }
 

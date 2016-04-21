@@ -1348,25 +1348,65 @@ void fenestra::exec ()
 {
     QByteArray octets = soquette->readAll ();
     QString requete = QString (octets);
-    QString rep;
+    QString rep = "";
     if (requete[0] == '-')
     {
         char a = requete[1].toLatin1();
         QString options = requete.mid(0,requete.indexOf(" "));
-        int optAcc = 7;
+        QString lang = "fr";
+        int optAcc = 0;
         requete = requete.mid(requete.indexOf(" ")+1);
         switch (a)
         {
         case 's':
-            rep = lexicum->scandeTxt(requete);
+            if ((options.size() > 2) && (options[2].isDigit()))
+                optAcc = options[2].digitValue() & 7;
+            rep = lexicum->scandeTxt(requete,0,optAcc==1);
             break;
         case 'a':
+            optAcc = 7; // Par défaut.
             if ((options.size() > 2) && (options[2].isDigit()))
                 optAcc = options[2].digitValue() & 7;
             rep = lexicum->scandeTxt(requete,optAcc,false);
             break;
         case 'l':
-            rep = lexicum->lemmatiseTxt(requete);
+            if ((options.size() > 2) && (options[2].isDigit()))
+            {
+                optAcc = options[2].digitValue();
+                options = options.mid(3);
+            }
+            if ((options.size() > 0) && (options[0].isDigit()))
+            {
+                optAcc = 10*optAcc+options[0].digitValue();
+                options = options.mid(1);
+            }
+            if ((options.size() == 2) && lexicum->cible().contains(options))
+                lang = options;
+            if (optAcc > 15) rep = lexicum->frequences(requete,lang).join("");
+            else
+            rep = lexicum->lemmatiseTxt(requete,optAcc&4,optAcc&2,optAcc&1);
+            break;
+        case 'x':
+            rep = lexicum->txt2XML(requete);
+            break;
+        case 'c':
+            if (options.size() > 2)
+                lexicum->changeMajPert(options[2] == '1');
+            else lexicum->changeMajPert(false);
+            break;
+        case 'C':
+            lexicum->changeMajPert(true);
+            break;
+        case 't':
+            if (options.size() > 3)
+                lexicum->dicLinguam(options.mid(2,2));
+            break;
+        case '?':
+            rep = "Les commandes possibles sont : \n";
+            rep += "\t-s : Scansion du texte (-s1 : avec recherche des mètres).\n";
+            rep += "\t-l : Lemmatisation du texte (avec options -l0..-l8).\n";
+            rep += "\t-a : Accentuation du texte (avec options -a1..-a3 et -a5..-a7).\n";
+            rep += "\t-x : Mise en XML du texte.\n";
             break;
         default:
             break;

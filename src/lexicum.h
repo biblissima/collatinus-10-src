@@ -218,7 +218,7 @@ private:
         QString scandeTxt (QString texte, int accent = 0, bool stats = false);
         QStringList formeXML (QString forme, bool *nonTrouve, bool deb_phr);
         QString txt2XML (QString texte);
-        QStringList frequences (QString txt);
+        QStringList frequences (QString txt, QString lang="");
 
         // La flexion
         QString flechis (Entree* e);

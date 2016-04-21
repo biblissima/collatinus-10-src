@@ -585,6 +585,11 @@ void Lexicum::lemmataLege (QString nomen)
         {
             irregulares.insert (I->graphie (), I);
         }
+#ifdef DEBOG
+    // Vérifier qu'il n'y a pas d'erreur de modèle - Ph. 19/4/16
+        if (!modelesRad.keys().contains(E->modele()))
+            qDebug() << "Erreur de modèle dans " << linea;
+#endif
         // ajout des radicaux
         for (int n=1;n<=modelesRad[E->modele ()].count ();++n)
         {
@@ -750,7 +755,8 @@ void Lexicum::linguamLege (QString lang, QString nomen)
 
 void Lexicum::dicLinguam (QString l)
 {
-    lingua = l;
+    if (metae.keys().contains(l))
+        lingua = l; // La langue existe.
 }
 
 void Lexicum::changeMajPert (bool m)
@@ -1397,7 +1403,8 @@ QStringList Lexicum::synthA (Entree* e, int c, int n, int g, int d)
         }
     foreach (Desinence* des, desinentiae)
     {
-        if ((des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
+        if ((modelesRad[e->modele()].size() >= des->nr())
+            && (des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
             && des->getTraits ()->casus () == c
             && des->getTraits ()->numerus () == n
             && des->getTraits ()->genus () == g
@@ -1437,7 +1444,8 @@ QStringList Lexicum::synthN (Entree *e, int c, int n)
     // désinences
     foreach (Desinence* des, desinentiae.values ())
     {
-        if ((des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
+        if ((modelesRad[e->modele()].size() >= des->nr())
+            && (des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
             && des->getTraits ()->casus () == c
             && des->getTraits ()->numerus () == n)
         {
@@ -1493,7 +1501,8 @@ QStringList Lexicum::synthP (Entree* e, int c, int n, int g)
                 return retour;
         }
     foreach (Desinence* des, desinentiae.values ())
-        if ((des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
+        if ((modelesRad[e->modele()].size() >= des->nr())
+            && (des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1]))
             && des->getTraits ()->casus () == c
             && des->getTraits ()->numerus () == n
             && des->getTraits ()->genus () == g)
@@ -1564,8 +1573,8 @@ QStringList Lexicum::synthV (Entree* e, int p, int n, int t, int m, int v)
     {
         QList<Desinence*> ldes;
         foreach (Desinence* des, desinentiae.values ())
-            if (
-                des->mdl ().contains (modelesRad[e->modele()][des->nr()-1])
+            if ((modelesRad[e->modele()].size() >= des->nr())
+                && des->mdl ().contains (modelesRad[e->modele()][des->nr()-1])
                 && des->getTraits ()->persona () == p
                 && des->getTraits ()->numerus () == n
                 && des->getTraits ()->tempus () == t
@@ -1618,7 +1627,8 @@ QStringList Lexicum::synthPart (Entree* e, int c, int g, int n, int t, int v)
 {
     QStringList retour;
     foreach (Desinence* des, desinentiae.values ())
-        if (des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1])
+        if ((modelesRad[e->modele()].size() >= des->nr())
+            && des->mdl ().contains (modelesRad[e->modele()][des->nr ()-1])
             && des->getTraits ()->casus () == c
             && des->getTraits ()->numerus () == n
             && des->getTraits ()->genus () == g
@@ -2536,8 +2546,10 @@ bool tri (const QString &s1, const QString &s2)
     return s1.toLower() > s2.toLower();
 }
 
-QStringList Lexicum::frequences (QString txt)
+QStringList Lexicum::frequences (QString txt, QString lang)
 {
+    QString exLingua = lingua;
+    if (lang != "") lingua = lang;
     // J'essaie d'échanger comptage et lemmatisation Ph.
     QStringList formes = txt.split (Ch::reEspace);
     QHash <QString, int> freq; // Occurrences par formes
@@ -2658,6 +2670,7 @@ QStringList Lexicum::frequences (QString txt)
     sortie.insert (3, "b = nombre de formes ambigu\u00ebs (partagées par plusieurs lemmes)<br/>\n");
     sortie.insert (4, "c = nombre probable de formes ambigu\u00ebs rattachées à ce lemme<br/>\n");
     sortie.insert (5, "------------<br/>\n");
+    if (lang != "") lingua = exLingua;
     return sortie;
 }
 

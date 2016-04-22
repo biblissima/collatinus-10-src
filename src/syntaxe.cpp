@@ -116,18 +116,21 @@ Mot::Mot (QString d, Lexicum * l, bool expr)
             ponctF = Ch::rePoncPrem.cap (1);
             gr.remove (Ch::rePoncPrem);
         }
-        ListeAnalyses la = l->lanalyses (gr);
-        foreach (QString cle, la.keys ())
+        if (gr != "")
         {
-            entrees << cle;
-            foreach (AnalyseMorpho * am, la.values (cle))
+            ListeAnalyses la = l->lanalyses (gr);
+            foreach (QString cle, la.keys ())
             {
-                canons << am->entree ()->canon ();
-                analyses << am;
+                entrees << cle;
+                foreach (AnalyseMorpho * am, la.values (cle))
+                {
+                    canons << am->entree ()->canon ();
+                    analyses << am;
+                }
             }
+            entrees.removeDuplicates ();
+            canons.removeDuplicates ();
         }
-        entrees.removeDuplicates ();
-        canons.removeDuplicates ();
     }
 }
 
@@ -299,11 +302,12 @@ Phrase::Phrase (QString txt, int d, int f, Lexicum * l)
     txt = txt.trimmed ();
     QStringList eclats = txt.split (Ch::reEspace);
     for (int i=0;i<eclats.count();++i)
-    {
-        Mot * nm = new Mot (eclats.at (i), l);
-        nm->setPos (i);
-        mots << nm;
-    }
+        if (eclats[i].contains(Ch::reLettres))
+        {
+            Mot * nm = new Mot (eclats.at (i), l);
+            nm->setPos (i);
+            mots << nm;
+        }
 }
 
 Phrase::~Phrase ()
@@ -444,7 +448,7 @@ QStringList Syntaxe::exprPhr (QString fc)
         {
             bool b = true;
             QList<Mot*> motsExpr = phrase->getMotsExpr();
-            foreach (Mot * m, motsExpr)        
+            foreach (Mot * m, motsExpr)
             {
                 if (m == NULL || motsExpr.size() <= m->getAvec () || m->getAvec() < 0) continue;
                 b = b && m->accord  (motsExpr.at (m->getAvec ()));

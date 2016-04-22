@@ -38,7 +38,6 @@
  */
 
 #define DEBOG
-#include <QDebug>
 
 #include "lexicum.h"
 
@@ -874,10 +873,11 @@ void Lexicum::lajoute (QString l, ListeAnalyses& la, AnalyseMorpho * am)
 
 ListeAnalyses Lexicum::lanalyses (QString forme, bool deb_phr)
 {
-    if (forme.size() == 0) return lanalysesE (forme);
-    if ((forme.at (0) == 'V') && !(forme.contains ('v')))
+    ListeAnalyses la;
+    if (forme.isEmpty()) return la;
+    if ((forme.at (0) == 'V') && !(forme.contains ("v")))
         forme[0] = 'U';
-    ListeAnalyses la = lanalysesE (forme); // passage direct à la détection d'enclitiques
+    la = lanalysesE (forme); // passage direct à la détection d'enclitiques
     if (MajPert && !deb_phr && !la.isEmpty()) return la;
     // Les majuscules sont pertinentes, je ne suis pas en début de phrase et j'ai une solution :
     // je m'arrête là !

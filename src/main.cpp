@@ -1451,7 +1451,9 @@ void fenestra::extra_dico(bool visible)
     if (visible)
     {
         fen_Dic->show();
-        fen_Dic->setWindowTitle("Collatinus : " + listeD.courant2 ()->nom());
+        QString titre = "Collatinus : ";
+        if (listeD.courant2 () != NULL) titre += listeD.courant2 ()->nom();
+        fen_Dic->setWindowTitle(titre);
     }
     else if (fen_Dic->isVisible()) fen_Dic->hide();
     else

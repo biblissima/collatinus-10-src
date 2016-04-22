@@ -38,6 +38,7 @@
  */
 
 #define DEBOG
+#include <QDebug>
 
 #include "lexicum.h"
 
@@ -1346,7 +1347,7 @@ QString Lexicum::lemmatiseTxt (QString &txt, bool alpha, bool cumVocibus, bool c
         echecs.removeDuplicates ();
         int nbEchecs = echecs.size ();
         double somme = echecs.size () + lemmes.size ();
-        lemmes << QString ("<strong>HAEC %1 / %2 NON RECOGNITA (%L3 \%):</strong>\n")
+        lemmes << QString ("<strong>HAEC %1 / %2 NON RECOGNITA (%L3 %):</strong>\n")
             .arg (nbEchecs)
             .arg (somme)
             .arg (QString::number ((nbEchecs / somme * 100), 'g', 4));
@@ -2486,7 +2487,7 @@ QString Lexicum::txt2XML (QString texte)
             // je la laisse comme elle est !
             continue;
         }
-        bool nonTr, nonTrSuiv;
+        bool nonTrSuiv;
         QStringList lforme;
         QStringList lfs = formeXML (separ[1], &nonTrSuiv, true);
         for (int i=1;i<separ.length();i+=2)
@@ -2501,7 +2502,6 @@ QString Lexicum::txt2XML (QString texte)
                 n_phr +=1;
             }
             lforme = lfs;
-            nonTr = nonTrSuiv;
             if (i < separ.length ()-2)
             {
                 deb_phr = separ[i+1].contains (Ch::rePonct);

@@ -25,6 +25,7 @@
 
 
 #include "analysemorpho.h"
+#include <QDebug>
 
 /*
 AnalyseMorpho::AnalyseMorpho(QObject *parent) :
@@ -301,7 +302,7 @@ QString AnalyseMorpho::ajoutSuff(QString fq, int accent)
                 }
                 k = j;
                 j -= 2;
-                while (!signes.contains((fq[j])) && (j>0)) j-=1;
+                while (j>0 && !signes.contains(fq[j])) j-=1;
             }
             // J'ai placé les césures en suivant les règles établies.
             // Mais je peux avoir des césures étymologiques qui vont à l'encontre des règles "normales".

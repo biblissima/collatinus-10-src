@@ -443,10 +443,11 @@ QStringList Syntaxe::exprPhr (QString fc)
         if (bon)
         {
             bool b = true;
-            foreach (Mot * m, phrase->getMotsExpr ())        
+            QList<Mot*> motsExpr = phrase->getMotsExpr();
+            foreach (Mot * m, motsExpr)        
             {
-                if (m == NULL) continue; 
-                b = b && m->accord  (phrase->getMotsExpr ().at (m->getAvec ()));
+                if (m == NULL || motsExpr.size() <= m->getAvec () || m->getAvec() < 0) continue;
+                b = b && m->accord  (motsExpr.at (m->getAvec ()));
                 if (b && m->estNoyau ()) 
                 { 
                     m->setExpr (exp->humain ());

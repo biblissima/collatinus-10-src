@@ -1,0 +1,3 @@
+[submodule "ressources"]
+	path = ressources
+	url = https://github.com/biblissima/collatinus-data.git
